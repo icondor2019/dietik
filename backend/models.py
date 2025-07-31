@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, date
+from enum import Enum
+
+class PlanStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
 
 # Modelos de autenticación
 class UserLogin(BaseModel):
@@ -35,4 +40,4 @@ class NutricionalPlan(BaseModel):
     daily_kcal: int = Field(default=0, description="Calorías diarias (integer)")
     daily_proteine: int = Field(default=0, description="Proteínas diarias (integer)")
     daily_carbohydrates: int = Field(default=0, description="Carbohidratos diarias (integer)")
-    status: str = Field(default="active", description="Estado del plan (active, inactive)")
+    status: PlanStatus = Field(default=PlanStatus.ACTIVE, description="Estado del plan (active, inactive)")

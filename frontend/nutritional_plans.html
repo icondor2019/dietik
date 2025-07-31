@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes Nutricionales - Dietik App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .plan-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .alert {
+            border-radius: 10px;
+        }
+        .plans-table {
+            margin-top: 30px;
+        }
+        .table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .btn-refresh {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">🍎 Dietik App</h4>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="welcome.html">
+                                <i class="fas fa-home me-2"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="daily_activity.html">
+                                <i class="fas fa-dumbbell me-2"></i>Actividad Física
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="nutritional_plans.html">
+                                <i class="fas fa-utensils me-2"></i>Planes Nutricionales
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="meal_records.html">
+                                <i class="fas fa-list-alt me-2"></i>Control de Registros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Planes Nutricionales</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <span class="badge bg-primary" id="userInfo">Usuario</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Section -->
+                <div class="card plan-card mb-4">
+                    <div class="card-body">
+                        <form id="planForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="daily_kcal" class="form-label">Calorías Diarias</label>
+                                    <input type="number" class="form-control" id="daily_kcal" required min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="daily_proteine" class="form-label">Proteínas (g)</label>
+                                    <input type="number" class="form-control" id="daily_proteine" required min="0">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="daily_carbohydrates" class="form-label">Carbohidratos (g)</label>
+                                    <input type="number" class="form-control" id="daily_carbohydrates" required min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="status" class="form-label">Estado del Plan</label>
+                                    <select class="form-select" id="status" required>
+                                        <option value="active" selected>Activo</option>
+                                        <option value="inactive">Inactivo</option>
+                                    </select>
+                                    <div class="form-text">
+                                        Nota: Al crear un plan activo, los planes activos existentes pasarán automáticamente a inactivos.
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Guardar Plan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Plans Table Section -->
+                <div class="plans-table">
+                    <button class="btn btn-primary btn-refresh" onclick="loadPlans()">
+                        <i class="fas fa-sync-alt me-2"></i>Actualizar Planes
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Calorías</th>
+                                    <th>Proteínas</th>
+                                    <th>Carbohidratos</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plansTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let API_BASE_URL = 'http://localhost:8000/api';
+
+        // Cargar configuración del backend
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    API_BASE_URL = config.api_base_url;
+                }
+            } catch (error) {
+                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+            }
+        }
+
+        // Función para cerrar sesión
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+
+        // Función para cargar los planes
+        async function loadPlans() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/nutritional-plans`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const tableBody = document.getElementById('plansTableBody');
+                    tableBody.innerHTML = '';
+
+                    data.data.forEach(plan => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(plan.created_at).toLocaleDateString()}</td>
+                            <td>${plan.daily_kcal}</td>
+                            <td>${plan.daily_proteine}</td>
+                            <td>${plan.daily_carbohydrates}</td>
+                            <td><span class="badge ${plan.status === 'active' ? 'bg-success' : 'bg-secondary'}">${plan.status}</span></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    console.error('Error al cargar los planes');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Configurar formulario
+        document.getElementById('planForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const planData = {
+                daily_kcal: parseInt(document.getElementById('daily_kcal').value),
+                daily_proteine: parseInt(document.getElementById('daily_proteine').value),
+                daily_carbohydrates: parseInt(document.getElementById('daily_carbohydrates').value),
+                status: document.getElementById('status').value
+            };
+
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/nutritional-plans`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(planData)
+                });
+
+                if (response.ok) {
+                    // Limpiar formulario y recargar planes
+                    e.target.reset();
+                    await loadPlans();
+                    alert('Plan nutricional guardado exitosamente');
+                } else {
+                    alert('Error al guardar el plan nutricional');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar el plan nutricional');
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadConfig();
+            
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('userInfo').textContent = userData.user_id;
+                    // Cargar planes iniciales
+                    await loadPlans();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error al obtener información del usuario:', error);
+            }
+        });
+    </script>
+</body>
+</html>

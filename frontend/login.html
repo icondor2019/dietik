@@ -162,7 +162,7 @@
             
             const authToken = localStorage.getItem('authToken');
             if (authToken) {
-                window.location.href = 'daily_activity.html';
+                window.location.href = 'welcome.html';
             }
         });
 
@@ -190,7 +190,7 @@
                     localStorage.setItem('authToken', result.access_token);
                     showAlert('¡Login exitoso! Redirigiendo...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'daily_activity.html';
+                        window.location.href = 'welcome.html';
                     }, 1500);
                 } else {
                     const error = await response.json();

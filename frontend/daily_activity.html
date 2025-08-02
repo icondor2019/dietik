@@ -268,29 +268,67 @@
         // Variables globales
         let authToken = localStorage.getItem('authToken');
         // Configuración de la API - se carga dinámicamente desde el backend
-        let API_BASE_URL = ''; // URL base para las llamadas a la API
+        let API_BASE_URL;
+        let configLoaded = false;
 
-        // Cargar configuración desde el backend
-        async function loadConfig() {
+        // Función para construir URLs de la API
+        function getApiUrl(endpoint) {
+            if (!configLoaded) {
+                throw new Error('La configuración no se ha cargado completamente');
+            }
+            
+            if (!API_BASE_URL) {
+                throw new Error('No se ha configurado la URL base de la API');
+            }
+
             try {
-                const response = await fetch('/api/config');
-                if (response.ok) {
-                    const config = await response.json();
-                    API_BASE_URL = config.api_base_url || ''; // Si está vacío, usaremos URLs relativas
+                // Limpiar el endpoint de cualquier prefijo no deseado
+                endpoint = endpoint.replace(/^\/frontend\/[^/]+\/api\//, '/');
+                endpoint = endpoint.replace(/^\/api\//, '/');
+                
+                // Asegurarse de que el endpoint comienza con /
+                if (!endpoint.startsWith('/')) {
+                    endpoint = '/' + endpoint;
                 }
+                
+                // Construir la URL completa
+                return new URL(endpoint, API_BASE_URL).toString();
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando URLs relativas');
+                console.error('Error al construir URL:', error);
+                throw new Error('Error al construir la URL de la API');
             }
         }
 
-        // Función para construir URLs de la API
-        function getApiUrl(path) {
-            // Si tenemos una API_BASE_URL, usar URL absoluta
-            if (API_BASE_URL) {
-                return `${API_BASE_URL}${path}`;
+        // Cargar configuración del backend
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar la configuración');
+                }
+                
+                const config = await response.json();
+                if (!config.api_base_url) {
+                    throw new Error('La configuración no incluye api_base_url');
+                }
+
+                // Si la URL es relativa, convertirla a absoluta
+                if (!config.api_base_url.startsWith('http')) {
+                    // Construir URL absoluta basada en la ubicación actual
+                    const baseUrl = window.location.origin;
+                    API_BASE_URL = new URL(config.api_base_url, baseUrl).origin;
+                } else {
+                    // Si es absoluta, usar directamente
+                    API_BASE_URL = new URL(config.api_base_url).origin;
+                }
+
+                configLoaded = true;
+                console.log('Configuración cargada correctamente');
+            } catch (error) {
+                console.error('Error al cargar la configuración:', error);
+                showAlert('Error al cargar la configuración del sistema', 'danger');
+                logout();
             }
-            // Si no, usar URL relativa
-            return path;
         }
 
         // Verificar autenticación al cargar
@@ -370,7 +408,7 @@
         // Cargar información del usuario
         async function loadUserInfo() {
             try {
-                const response = await fetch(getApiUrl('/api/user/profile'), {
+                const response = await fetch(getApiUrl('/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

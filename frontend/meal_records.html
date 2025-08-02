@@ -259,7 +259,8 @@
 
             try {
                 // Limpiar el endpoint de cualquier prefijo no deseado
-                endpoint = endpoint.replace(/^\/frontend\/[^/]+\//, '/');
+                endpoint = endpoint.replace(/^\/frontend\/[^/]+\/api\//, '/');
+                endpoint = endpoint.replace(/^\/api\//, '/');
                 
                 // Asegurarse de que el endpoint comienza con /
                 if (!endpoint.startsWith('/')) {

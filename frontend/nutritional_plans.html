@@ -227,19 +227,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let API_BASE_URL = 'http://localhost:8000/api';
+        let API_BASE_URL = ''; // URL base para las llamadas a la API
 
-        // Cargar configuración del backend
+        // Cargar configuración desde el backend
         async function loadConfig() {
             try {
                 const response = await fetch('/api/config');
                 if (response.ok) {
                     const config = await response.json();
-                    API_BASE_URL = config.api_base_url;
+                    API_BASE_URL = config.api_base_url || ''; // Si está vacío, usaremos URLs relativas
                 }
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+                console.warn('No se pudo cargar la configuración del backend, usando URLs relativas');
             }
+        }
+
+        // Función para construir URLs de la API
+        function getApiUrl(path) {
+            // Si tenemos una API_BASE_URL, usar URL absoluta
+            if (API_BASE_URL) {
+                return `${API_BASE_URL}${path}`;
+            }
+            // Si no, usar URL relativa
+            return path;
         }
 
         // Función para cerrar sesión
@@ -252,7 +262,7 @@
         async function loadPlans() {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(`${API_BASE_URL}/api/nutritional-plans`, {
+                const response = await fetch(getApiUrl('/api/nutritional-plans'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
@@ -295,7 +305,7 @@
 
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(`${API_BASE_URL}/api/nutritional-plans`, {
+                const response = await fetch(getApiUrl('/api/nutritional-plans'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -329,7 +339,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+                const response = await fetch(getApiUrl('/api/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

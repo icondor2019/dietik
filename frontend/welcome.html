@@ -164,18 +164,65 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let API_BASE_URL = 'http://localhost:8000/api';
+        let API_BASE_URL;
+        let configLoaded = false;
+
+        // Función para construir URLs de la API
+        function getApiUrl(endpoint) {
+            if (!configLoaded) {
+                throw new Error('La configuración no se ha cargado completamente');
+            }
+            
+            if (!API_BASE_URL) {
+                throw new Error('No se ha configurado la URL base de la API');
+            }
+
+            try {
+                // Limpiar el endpoint de cualquier prefijo no deseado
+                endpoint = endpoint.replace(/^\/frontend\/[^/]+\/api\//, '/');
+                endpoint = endpoint.replace(/^\/api\//, '/');
+                
+                // Asegurarse de que el endpoint comienza con /
+                if (!endpoint.startsWith('/')) {
+                    endpoint = '/' + endpoint;
+                }
+                
+                // Construir la URL completa
+                return new URL(endpoint, API_BASE_URL).toString();
+            } catch (error) {
+                console.error('Error al construir URL:', error);
+                throw new Error('Error al construir la URL de la API');
+            }
+        }
 
         // Cargar configuración del backend
         async function loadConfig() {
             try {
                 const response = await fetch('/api/config');
-                if (response.ok) {
-                    const config = await response.json();
-                    API_BASE_URL = config.api_base_url;
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar la configuración');
                 }
+                
+                const config = await response.json();
+                if (!config.api_base_url) {
+                    throw new Error('La configuración no incluye api_base_url');
+                }
+
+                // Si la URL es relativa, convertirla a absoluta
+                if (!config.api_base_url.startsWith('http')) {
+                    // Construir URL absoluta basada en la ubicación actual
+                    const baseUrl = window.location.origin;
+                    API_BASE_URL = new URL(config.api_base_url, baseUrl).origin;
+                } else {
+                    // Si es absoluta, usar directamente
+                    API_BASE_URL = new URL(config.api_base_url).origin;
+                }
+
+                configLoaded = true;
+                console.log('Configuración cargada correctamente');
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+                console.error('Error al cargar la configuración:', error);
+                logout();
             }
         }
 
@@ -187,17 +234,17 @@
 
         // Mostrar información del usuario
         document.addEventListener('DOMContentLoaded', async function() {
-            // Cargar configuración primero
-            await loadConfig();
-            
-            const authToken = localStorage.getItem('authToken');
-            if (!authToken) {
-                window.location.href = '/frontend/login.html';
-                return;
-            }
-            
             try {
-                const response = await fetch(getApiUrl('/api/user/profile'), {
+                // Cargar configuración primero
+                await loadConfig();
+                
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    window.location.href = '/frontend/login.html';
+                    return;
+                }
+                
+                const response = await fetch(getApiUrl('/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

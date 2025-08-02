@@ -184,21 +184,27 @@
             if (!API_BASE_URL) {
                 throw new Error('No se ha configurado la URL base de la API');
             }
-            
-            // Asegurarse de que el endpoint comienza con /
-            if (!endpoint.startsWith('/')) {
-                endpoint = '/' + endpoint;
+
+            try {
+                // Limpiar el endpoint de cualquier prefijo no deseado
+                endpoint = endpoint.replace(/^\/frontend\/[^/]+\//, '/');
+                
+                // Asegurarse de que el endpoint comienza con /
+                if (!endpoint.startsWith('/')) {
+                    endpoint = '/' + endpoint;
+                }
+                
+                // Construir la URL completa
+                return new URL(endpoint, API_BASE_URL).toString();
+            } catch (error) {
+                console.error('Error al construir URL:', error);
+                throw new Error('Error al construir la URL de la API');
             }
-            
-            // Usar la URL base configurada
-            const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-            return baseUrl + endpoint;
         }
 
         // Cargar configuración del backend
         async function loadConfig() {
             try {
-                // Intentar cargar la configuración desde la misma ubicación que el HTML
                 const response = await fetch('/api/config');
                 if (!response.ok) {
                     throw new Error('No se pudo cargar la configuración');
@@ -209,7 +215,12 @@
                     throw new Error('La configuración no incluye api_base_url');
                 }
 
-                API_BASE_URL = config.api_base_url;
+                // Asegurarnos de que la URL base es absoluta
+                if (!config.api_base_url.startsWith('http')) {
+                    throw new Error('La URL de la API debe ser absoluta');
+                }
+
+                API_BASE_URL = new URL(config.api_base_url).origin;
                 configLoaded = true;
                 console.log('Configuración cargada correctamente');
             } catch (error) {

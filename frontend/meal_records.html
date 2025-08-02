@@ -250,7 +250,7 @@
         // Función para construir URLs de la API
         function getApiUrl(endpoint) {
             if (!configLoaded) {
-                throw new Error('La configuración no se ha cargado completamente');
+                throw new Error('La configuración no se ha cargada completamente');
             }
             
             if (!API_BASE_URL) {
@@ -258,17 +258,13 @@
             }
 
             try {
-                // Limpiar el endpoint de cualquier prefijo no deseado
-                endpoint = endpoint.replace(/^\/frontend\/[^/]+\/api\//, '/');
-                endpoint = endpoint.replace(/^\/api\//, '/');
-                
                 // Asegurarse de que el endpoint comienza con /
                 if (!endpoint.startsWith('/')) {
                     endpoint = '/' + endpoint;
                 }
                 
-                // Construir la URL completa
-                return new URL(endpoint, API_BASE_URL).toString();
+                // Simplemente unir la base con el endpoint
+                return `${API_BASE_URL}${endpoint}`;
             } catch (error) {
                 console.error('Error al construir URL:', error);
                 throw new Error('Error al construir la URL de la API');
@@ -376,7 +372,7 @@
         async function deleteMeal(mealId) {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(getApiUrl(`/api/meals/${mealId}`), {
+                const response = await fetch(getApiUrl(`/meals/${mealId}`), {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -446,7 +442,7 @@
             }
 
             try {
-                const response = await fetch(getApiUrl('/api/user/profile'), {
+                const response = await fetch(getApiUrl('/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

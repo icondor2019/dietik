@@ -121,22 +121,22 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="welcome.html">
+                            <a class="nav-link text-white" href="/frontend/welcome.html">
                                 <i class="fas fa-home me-2"></i>Inicio
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="daily_activity.html">
+                            <a class="nav-link text-white" href="/frontend/daily_activity.html">
                                 <i class="fas fa-dumbbell me-2"></i>Actividad Física
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="nutritional_plans.html">
+                            <a class="nav-link text-white" href="/frontend/nutritional_plans.html">
                                 <i class="fas fa-utensils me-2"></i>Planes Nutricionales
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white active" href="meal_records.html">
+                            <a class="nav-link text-white active" href="/frontend/meal_records.html">
                                 <i class="fas fa-list-alt me-2"></i>Control de Registros
                             </a>
                         </li>
@@ -238,7 +238,7 @@
         async function loadMeals() {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(`${API_BASE_URL}/meals`, {
+                const response = await fetch(`${API_BASE_URL}/api/meals`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
@@ -287,7 +287,7 @@
         async function deleteMeal(mealId) {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(`${API_BASE_URL}/meals/${mealId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/meals/${mealId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -352,12 +352,12 @@
             
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                window.location.href = 'login.html';
+                window.location.href = '/frontend/login.html';
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

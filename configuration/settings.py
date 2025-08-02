@@ -29,7 +29,7 @@ CORS_ALLOW_METHODS = os.getenv("CORS_ALLOW_METHODS", "*").split(",")
 CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "*").split(",")
 
 # Configuración del frontend
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8000")
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # Configuración de logging

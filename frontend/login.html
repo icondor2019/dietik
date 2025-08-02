@@ -172,30 +172,66 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Configuración de la API - se carga dinámicamente desde el backend
-        let API_BASE_URL = 'http://localhost:8000'; // Fallback por defecto
+        let API_BASE_URL;
+        let configLoaded = false;
 
-        // Cargar configuración desde el backend
+        // Función para construir URLs de la API
+        function getApiUrl(endpoint) {
+            if (!configLoaded) {
+                throw new Error('La configuración no se ha cargado completamente');
+            }
+            
+            if (!API_BASE_URL) {
+                throw new Error('No se ha configurado la URL base de la API');
+            }
+            
+            // Asegurarse de que el endpoint comienza con /
+            if (!endpoint.startsWith('/')) {
+                endpoint = '/' + endpoint;
+            }
+            
+            // Usar la URL base configurada
+            const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+            return baseUrl + endpoint;
+        }
+
+        // Cargar configuración del backend
         async function loadConfig() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/config`);
-                if (response.ok) {
-                    const config = await response.json();
-                    API_BASE_URL = config.api_base_url;
+                // Intentar cargar la configuración desde la misma ubicación que el HTML
+                const response = await fetch('/api/config');
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar la configuración');
                 }
+                
+                const config = await response.json();
+                if (!config.api_base_url) {
+                    throw new Error('La configuración no incluye api_base_url');
+                }
+
+                API_BASE_URL = config.api_base_url;
+                configLoaded = true;
+                console.log('Configuración cargada correctamente');
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+                console.error('Error al cargar la configuración:', error);
+                showAlert('Error al cargar la configuración del sistema', 'danger');
+                throw error;
             }
         }
 
         // Verificar si ya está autenticado
         document.addEventListener('DOMContentLoaded', async function() {
-            // Cargar configuración primero
-            await loadConfig();
-            
-            const authToken = localStorage.getItem('authToken');
-            if (authToken) {
-                window.location.href = '/frontend/welcome.html';
+            try {
+                // Cargar configuración primero
+                await loadConfig();
+                
+                const authToken = localStorage.getItem('authToken');
+                if (authToken) {
+                    window.location.href = '/frontend/welcome.html';
+                }
+            } catch (error) {
+                console.error('Error durante la inicialización:', error);
+                // No redirigir si hay error, permitir que el usuario intente loguearse
             }
         });
 
@@ -207,7 +243,7 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                const response = await fetch(getApiUrl('/auth/login'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -243,7 +279,7 @@
             const name = document.getElementById('registerName').value;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                const response = await fetch(getApiUrl('/auth/register'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

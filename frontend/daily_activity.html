@@ -268,19 +268,29 @@
         // Variables globales
         let authToken = localStorage.getItem('authToken');
         // Configuración de la API - se carga dinámicamente desde el backend
-        let API_BASE_URL = 'http://localhost:8000'; // Fallback por defecto
+        let API_BASE_URL = ''; // URL base para las llamadas a la API
 
         // Cargar configuración desde el backend
         async function loadConfig() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/config`);
+                const response = await fetch('/api/config');
                 if (response.ok) {
                     const config = await response.json();
-                    API_BASE_URL = config.api_base_url;
+                    API_BASE_URL = config.api_base_url || ''; // Si está vacío, usaremos URLs relativas
                 }
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+                console.warn('No se pudo cargar la configuración del backend, usando URLs relativas');
             }
+        }
+
+        // Función para construir URLs de la API
+        function getApiUrl(path) {
+            // Si tenemos una API_BASE_URL, usar URL absoluta
+            if (API_BASE_URL) {
+                return `${API_BASE_URL}${path}`;
+            }
+            // Si no, usar URL relativa
+            return path;
         }
 
         // Verificar autenticación al cargar
@@ -327,7 +337,7 @@
                 };
 
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/daily-activity`, {
+                    const response = await fetch(getApiUrl('/api/daily-activity'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -360,7 +370,7 @@
         // Cargar información del usuario
         async function loadUserInfo() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+                const response = await fetch(getApiUrl('/api/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
@@ -383,7 +393,7 @@
         // Cargar historial
         async function loadHistory() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/daily-activity`, {
+                const response = await fetch(getApiUrl('/api/daily-activity'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

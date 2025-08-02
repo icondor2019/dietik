@@ -287,12 +287,16 @@
                     throw new Error('La configuración no incluye api_base_url');
                 }
 
-                // Asegurarnos de que la URL base es absoluta
+                // Si la URL es relativa, convertirla a absoluta
                 if (!config.api_base_url.startsWith('http')) {
-                    throw new Error('La URL de la API debe ser absoluta');
+                    // Construir URL absoluta basada en la ubicación actual
+                    const baseUrl = window.location.origin;
+                    API_BASE_URL = new URL(config.api_base_url, baseUrl).origin;
+                } else {
+                    // Si es absoluta, usar directamente
+                    API_BASE_URL = new URL(config.api_base_url).origin;
                 }
 
-                API_BASE_URL = new URL(config.api_base_url).origin;
                 configLoaded = true;
                 console.log('Configuración cargada correctamente');
             } catch (error) {

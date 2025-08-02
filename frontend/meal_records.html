@@ -242,31 +242,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let API_BASE_URL = 'http://localhost:8000/api';
+        let API_BASE_URL;
         let deleteModal;
         let mealToDelete = null;
 
         // Función para construir URLs de la API
         function getApiUrl(endpoint) {
-            // No remover /api del endpoint, ya que es parte de la ruta
+            // Si no tenemos API_BASE_URL configurada, usar la URL de producción por defecto
+            if (!API_BASE_URL) {
+                API_BASE_URL = 'https://dietik-production.up.railway.app';
+            }
+            
+            // Asegurarse de que el endpoint comienza con /
             if (!endpoint.startsWith('/')) {
                 endpoint = '/' + endpoint;
             }
-            return API_BASE_URL.replace(/\/$/, '') + endpoint;
+            
+            // Usar la URL base configurada
+            const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+            return baseUrl + endpoint;
         }
 
         // Cargar configuración del backend
         async function loadConfig() {
             try {
-                const response = await fetch('/api/config');
+                // Usar directamente la URL de producción para config
+                const url = 'https://dietik-production.up.railway.app/api/config';
+                const response = await fetch(url);
                 if (response.ok) {
                     const config = await response.json();
-                    // Mantener la URL base tal como viene del backend
-                    API_BASE_URL = config.api_base_url;
-                    console.log('API Base URL configurada:', API_BASE_URL);
+                    if (config.api_base_url) {
+                        // Extraer solo el origin de la URL
+                        let url = new URL(config.api_base_url);
+                        API_BASE_URL = url.origin;
+                        console.log('API Base URL configurada:', API_BASE_URL);
+                    }
                 }
             } catch (error) {
-                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto:', API_BASE_URL);
+                console.warn('No se pudo cargar la configuración del backend, usando URL de producción por defecto');
+                API_BASE_URL = 'https://dietik-production.up.railway.app';
             }
         }
 

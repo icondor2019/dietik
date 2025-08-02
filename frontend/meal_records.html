@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Registros - Dietik App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #ff9505;
+            --primary-blue: #188fa7;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #157d92;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(24, 143, 167, 0.3);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(24, 143, 167, 0.25);
+        }
+
+        .bg-dark {
+            background-color: #1a1a1a !important;
+        }
+
+        .bg-primary {
+            background: var(--primary-blue) !important;
+        }
+
+        .text-primary {
+            color: var(--primary-blue) !important;
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-orange) !important;
+            box-shadow: 0 2px 10px rgba(255, 149, 5, 0.3);
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: rgba(255, 149, 5, 0.1);
+        }
+
+        .table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-refresh {
+            margin-bottom: 20px;
+        }
+
+        .delete-button {
+            padding: 4px 8px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background: var(--primary-orange);
+            border: none;
+        }
+
+        .delete-button:hover {
+            transform: scale(1.1);
+            background: #e88505;
+        }
+
+        .meal-row {
+            transition: all 0.3s ease;
+        }
+
+        .meal-row:hover {
+            background-color: rgba(24, 143, 167, 0.05) !important;
+        }
+
+        .meal-row.fade-out {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+
+        .badge.bg-primary {
+            background-color: var(--primary-orange) !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">🍎 Dietik App</h4>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="welcome.html">
+                                <i class="fas fa-home me-2"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="daily_activity.html">
+                                <i class="fas fa-dumbbell me-2"></i>Actividad Física
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="nutritional_plans.html">
+                                <i class="fas fa-utensils me-2"></i>Planes Nutricionales
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="meal_records.html">
+                                <i class="fas fa-list-alt me-2"></i>Control de Registros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Control de Registros</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <span class="badge bg-primary" id="userInfo">Usuario</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Records Table Section -->
+                <div class="records-table">
+                    <button class="btn btn-primary btn-refresh" onclick="loadMeals()">
+                        <i class="fas fa-sync-alt me-2"></i>Actualizar Registros
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th colspan="2">Descripción</th>
+                                    <th>Calorías (kcal)</th>
+                                    <th>Proteínas (g)</th>
+                                    <th>Carbohidratos (g)</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mealsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Alert Container -->
+                <div id="alertContainer"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar este registro?
+                    <p class="text-muted mt-2" id="mealDetails"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let API_BASE_URL = 'http://localhost:8000/api';
+        let deleteModal;
+        let mealToDelete = null;
+
+        // Cargar configuración del backend
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    API_BASE_URL = config.api_base_url;
+                }
+            } catch (error) {
+                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+            }
+        }
+
+        // Función para cerrar sesión
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+
+        // Función para cargar las comidas
+        async function loadMeals() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/meals`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const tableBody = document.getElementById('mealsTableBody');
+                    tableBody.innerHTML = '';
+
+                    data.data.forEach(meal => {
+                        const row = document.createElement('tr');
+                        row.className = 'meal-row';
+                        row.dataset.mealId = meal.uuid;
+                        row.innerHTML = `
+                            <td>${new Date(meal.created_at).toLocaleString()}</td>
+                            <td colspan="2">${meal.descripcion || 'Sin descripción'}</td>
+                            <td>${meal.energia_kcal?.toFixed(1) || '0'}</td>
+                            <td>${meal.proteina_gr?.toFixed(1) || '0'}g</td>
+                            <td>${meal.carbohidratos_gr?.toFixed(1) || '0'}g</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-button" onclick="showDeleteConfirmation('${meal.uuid}', '${meal.descripcion || 'registro'}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    showAlert('Error al cargar los registros', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al cargar los registros', 'danger');
+            }
+        }
+
+        // Función para mostrar el modal de confirmación
+        function showDeleteConfirmation(mealId, mealName) {
+            mealToDelete = mealId;
+            document.getElementById('mealDetails').textContent = `Comida: ${mealName}`;
+            deleteModal.show();
+        }
+
+        // Función para eliminar una comida
+        async function deleteMeal(mealId) {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/meals/${mealId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Agregar animación de fade out
+                    const row = document.querySelector(`tr[data-meal-id="${mealId}"]`);
+                    row.classList.add('fade-out');
+                    
+                    // Esperar a que termine la animación antes de recargar
+                    setTimeout(() => {
+                        loadMeals();
+                    }, 300);
+                    
+                    showAlert('Registro eliminado exitosamente', 'success');
+                } else {
+                    showAlert('Error al eliminar el registro', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al eliminar el registro', 'danger');
+            }
+        }
+
+        // Función para mostrar alertas
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            alertContainer.innerHTML = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Inicializar el modal
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            
+            // Configurar el botón de confirmación
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (mealToDelete) {
+                    deleteMeal(mealToDelete);
+                    deleteModal.hide();
+                    mealToDelete = null;
+                }
+            });
+
+            await loadConfig();
+            
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('userInfo').textContent = userData.user_id;
+                    await loadMeals();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error al obtener información del usuario:', error);
+            }
+        });
+    </script>
+</body>
+</html>

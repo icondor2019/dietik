@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Activity - Dietik App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #ff9505;
+            --primary-blue: #188fa7;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .activity-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #157d92;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(24, 143, 167, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(24, 143, 167, 0.25);
+        }
+        
+        .alert {
+            border-radius: 10px;
+        }
+        
+        .history-item {
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .history-item:hover {
+            background-color: #e9ecef;
+            transform: translateX(5px);
+            border-left-color: var(--primary-orange);
+        }
+        
+        .btn-light {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-light:hover {
+            background-color: #ffffff;
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-orange) !important;
+            box-shadow: 0 2px 10px rgba(255, 149, 5, 0.3);
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: rgba(255, 149, 5, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--primary-blue);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">🍎 Dietik App</h4>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="welcome.html">
+                                <i class="fas fa-home me-2"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="#" onclick="showActivityPage()">
+                                <i class="fas fa-dumbbell me-2"></i>Actividad Física
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="nutritional_plans.html">
+                                <i class="fas fa-utensils me-2"></i>Planes Nutricionales
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="meal_records.html">
+                                <i class="fas fa-list-alt me-2"></i>Control de Registros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Actividad Física</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <span class="badge bg-primary" id="userInfo">Usuario</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Page -->
+                <div id="activityPage">
+                    <!-- Form Section -->
+                    <div class="card activity-card mb-4">
+                        <div class="card-header text-white">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Registrar Actividad Diaria</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="activityForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="created_at" class="form-label">Fecha</label>
+                                        <input type="date" class="form-control" id="created_at" name="created_at">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="peso" class="form-label">Peso (kg)</label>
+                                        <input type="number" class="form-control" id="peso" name="peso" step="0.1" placeholder="0">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="grasa" class="form-label">Grasa Corporal (%)</label>
+                                        <input type="number" class="form-control" id="grasa" name="grasa" step="0.1" placeholder="0">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="musculo" class="form-label">Masa Muscular (kg)</label>
+                                        <input type="number" class="form-control" id="musculo" name="musculo" step="0.1" placeholder="0">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="hambre" class="form-label">Nivel de Hambre (0-5)</label>
+                                        <select class="form-select" id="hambre" name="hambre">
+                                            <option value="0" selected>0 - Sin registro</option>
+                                            <option value="1">1 - Sin hambre</option>
+                                            <option value="2">2 - Poco hambre</option>
+                                            <option value="3">3 - Moderado</option>
+                                            <option value="4">4 - Hambriento</option>
+                                            <option value="5">5 - Muy hambriento</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="ejercicio" class="form-label">Nivel de Ejercicio (0-5)</label>
+                                        <select class="form-select" id="ejercicio" name="ejercicio">
+                                            <option value="0" selected>0 - Sin registro</option>
+                                            <option value="1">1 - Sin ejercicio</option>
+                                            <option value="2">2 - Ejercicio ligero</option>
+                                            <option value="3">3 - Ejercicio moderado</option>
+                                            <option value="4">4 - Ejercicio intenso</option>
+                                            <option value="5">5 - Ejercicio muy intenso</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Guardar Actividad
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- History Section -->
+                    <div class="card activity-card">
+                        <div class="card-header text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Actividades Recientes</h5>
+                            <button class="btn btn-light btn-sm" onclick="refreshHistory()">
+                                <i class="fas fa-sync-alt me-1"></i>Actualizar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="historyList">
+                                <!-- Los datos se cargarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div id="alertContainer" class="mt-3"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let authToken = localStorage.getItem('authToken');
+        // Configuración de la API - se carga dinámicamente desde el backend
+        let API_BASE_URL = 'http://localhost:8000'; // Fallback por defecto
+
+        // Cargar configuración desde el backend
+        async function loadConfig() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/config`);
+                if (response.ok) {
+                    const config = await response.json();
+                    API_BASE_URL = config.api_base_url;
+                }
+            } catch (error) {
+                console.warn('No se pudo cargar la configuración del backend, usando configuración por defecto');
+            }
+        }
+
+        // Verificar autenticación al cargar
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Cargar configuración primero
+            await loadConfig();
+            
+            if (!authToken) {
+                showAlert('Por favor, inicia sesión primero', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // Mostrar información del usuario
+            loadUserInfo();
+            
+            // Configurar formulario
+            setupForm();
+            
+            // Establecer fecha por defecto (hoy)
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('created_at').value = today;
+            
+            // Cargar historial inicial
+            loadHistory();
+        });
+
+        // Configurar formulario
+        function setupForm() {
+            const form = document.getElementById('activityForm');
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const activityData = {
+                    peso: formData.get('peso') ? parseFloat(formData.get('peso')) : 0,
+                    grasa: formData.get('grasa') ? parseFloat(formData.get('grasa')) : 0,
+                    musculo: formData.get('musculo') ? parseFloat(formData.get('musculo')) : 0,
+                    hambre: parseInt(formData.get('hambre')) || 0,
+                    ejercicio: parseInt(formData.get('ejercicio')) || 0,
+                    created_at: formData.get('created_at') || null
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/daily-activity`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(activityData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        showAlert('Actividad registrada exitosamente!', 'success');
+                        form.reset();
+                        
+                        // Establecer fecha por defecto nuevamente
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('created_at').value = today;
+                        
+                        // Actualizar historial automáticamente
+                        loadHistory();
+                    } else {
+                        const error = await response.json();
+                        showAlert(`Error: ${error.detail}`, 'danger');
+                    }
+                } catch (error) {
+                    showAlert('Error de conexión', 'danger');
+                }
+            });
+        }
+
+        // Cargar información del usuario
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('userInfo').textContent = userData.email;
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Mostrar página de actividad
+        function showActivityPage() {
+            document.getElementById('activityPage').style.display = 'block';
+        }
+
+        // Cargar historial
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/daily-activity`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayGroupedHistory(result.data);
+                } else {
+                    showAlert('Error al cargar el historial', 'danger');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'danger');
+            }
+        }
+
+        // Actualizar historial (función del botón refresh)
+        async function refreshHistory() {
+            await loadHistory();
+            showAlert('Historial actualizado', 'success');
+        }
+
+        // Mostrar historial agrupado por día
+        function displayGroupedHistory(activities) {
+            const historyList = document.getElementById('historyList');
+            
+            if (activities.length === 0) {
+                historyList.innerHTML = '<p class="text-muted">No hay registros de actividad</p>';
+                return;
+            }
+
+            // Agrupar actividades por día
+            const groupedByDay = {};
+            activities.forEach(activity => {
+                const date = activity.created_at.split('T')[0]; // Obtener solo la fecha
+                if (!groupedByDay[date]) {
+                    groupedByDay[date] = [];
+                }
+                groupedByDay[date].push(activity);
+            });
+
+            // Calcular valores máximos por día
+            const dailyMaxValues = {};
+            Object.keys(groupedByDay).forEach(date => {
+                const dayActivities = groupedByDay[date];
+                dailyMaxValues[date] = {
+                    peso: Math.max(...dayActivities.map(a => a.peso || 0)),
+                    grasa: Math.max(...dayActivities.map(a => a.grasa || 0)),
+                    musculo: Math.max(...dayActivities.map(a => a.musculo || 0)),
+                    hambre: Math.max(...dayActivities.map(a => a.hambre || 0)),
+                    ejercicio: Math.max(...dayActivities.map(a => a.ejercicio || 0)),
+                    count: dayActivities.length
+                };
+            });
+
+            // Ordenar fechas de más reciente a más antigua
+            const sortedDates = Object.keys(dailyMaxValues).sort((a, b) => new Date(b) - new Date(a));
+
+            historyList.innerHTML = sortedDates.map(date => {
+                const values = dailyMaxValues[date];
+                const formattedDate = new Date(date).toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                return `
+                    <div class="history-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1"><strong>${formattedDate}</strong></h6>
+                                <small class="text-muted">${values.count} registro${values.count > 1 ? 's' : ''}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <div class="fw-bold text-primary">${values.peso.toFixed(1)}</div>
+                                    <small class="text-muted">kg</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <div class="fw-bold text-warning">${values.grasa.toFixed(1)}</div>
+                                    <small class="text-muted">% grasa</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <div class="fw-bold text-success">${values.musculo.toFixed(1)}</div>
+                                    <small class="text-muted">kg músculo</small>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="text-center">
+                                    <div class="fw-bold text-info">${values.hambre}</div>
+                                    <small class="text-muted">hambre</small>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="text-center">
+                                    <div class="fw-bold text-danger">${values.ejercicio}</div>
+                                    <small class="text-muted">ejercicio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Mostrar alertas
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            alertContainer.innerHTML = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Cerrar sesión
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html> 

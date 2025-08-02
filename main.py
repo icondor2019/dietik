@@ -36,12 +36,12 @@ app = FastAPI(title=APP_NAME, version=APP_VERSION)
 async def root_api():
     return {"message": "Dietik App API is running"}
 
-# Montar archivos estáticos del frontend después de las rutas de la API
-@app.get("/")
-async def read_root():
-    return FileResponse("frontend/login.html")
+# # Montar archivos estáticos del frontend después de las rutas de la API
+# @app.get("/")
+# async def read_root():
+#     return FileResponse("frontend/login.html")
 
-app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 # Configuración CORS para permitir requests del frontend
 app.add_middleware(
@@ -51,6 +51,15 @@ app.add_middleware(
     allow_methods=CORS_ALLOW_METHODS,
     allow_headers=CORS_ALLOW_HEADERS,
 )
+
+@app.middleware("http")
+async def serve_spa(request: Request, call_next):
+    response = await call_next(request)
+    
+    # Solo servir HTML si la ruta no es API ni un archivo estático
+    if response.status_code == 404 and not request.url.path.startswith("/api") and not os.path.splitext(request.url.path)[1]:
+        return FileResponse("frontend/login.html")
+    return response
 
 # Rutas de autenticación
 @app.post("/auth/login", response_model=Token)
@@ -152,6 +161,7 @@ async def create_daily_activity(activity: DailyActivity, user_id: str = Depends(
 
 @app.get("/api/daily-activity")
 async def get_daily_activity(user_id: str = Depends(verify_token)):
+    logger.info(f"[GET] records for telegam user {user_id}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -166,7 +176,7 @@ async def get_daily_activity(user_id: str = Depends(verify_token)):
             raise HTTPException(status_code=404, detail="Client not found in clients table")
         
         telegram_id = client_response.data[0]["telegram_id"]
-        
+        logger.info(f"[GET] Using telegram_id for user {user_id}: {telegram_id}")
         # Obtener registros del usuario usando el telegram_id como client_id
         response = supabase.table("daily_activity")\
             .select("*")\

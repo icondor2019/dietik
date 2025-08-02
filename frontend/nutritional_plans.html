@@ -124,22 +124,22 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/frontend/welcome.html">
+                            <a class="nav-link text-white" href="/static/welcome.html">
                                 <i class="fas fa-home me-2"></i>Inicio
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/frontend/daily_activity.html">
+                            <a class="nav-link text-white" href="/static/daily_activity.html">
                                 <i class="fas fa-dumbbell me-2"></i>Actividad Física
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white active" href="/frontend/nutritional_plans.html">
+                            <a class="nav-link text-white active" href="/static/nutritional_plans.html">
                                 <i class="fas fa-utensils me-2"></i>Planes Nutricionales
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/frontend/meal_records.html">
+                            <a class="nav-link text-white" href="/static/meal_records.html">
                                 <i class="fas fa-list-alt me-2"></i>Control de Registros
                             </a>
                         </li>
@@ -241,6 +241,10 @@
             }
 
             try {
+                // Limpiar el endpoint de cualquier prefijo no deseado
+                endpoint = endpoint.replace(/^\/frontend\/[^/]+\/api\//, '/');
+                // endpoint = endpoint.replace(/^\/api\//, '/');
+
                 // Asegurarse de que el endpoint comienza con /
                 if (!endpoint.startsWith('/')) {
                     endpoint = '/' + endpoint;
@@ -296,7 +300,7 @@
         async function loadPlans() {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(getApiUrl('/nutritional-plans'), {
+                const response = await fetch(getApiUrl('/api/nutritional-plans'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
@@ -339,7 +343,7 @@
 
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(getApiUrl('/nutritional-plans'), {
+                const response = await fetch(getApiUrl('/api/nutritional-plans'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -368,12 +372,12 @@
             
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                window.location.href = '/frontend/login.html';
+                window.location.href = '/static/login.html';
                 return;
             }
 
             try {
-                const response = await fetch(getApiUrl('/user/profile'), {
+                const response = await fetch(getApiUrl('/api/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }

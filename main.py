@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
@@ -20,7 +20,8 @@ from configuration.settings import (
     SUPABASE_KEY,
     HOST,
     PORT,
-    API_BASE_URL
+    API_BASE_URL,
+    FRONTEND_URL
 )
 
 # Importar módulos locales
@@ -29,6 +30,18 @@ from backend.models import UserLogin, Token, UserRegister, DailyActivity, Nutric
 # from database import db
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
+
+# Ruta de prueba para API
+@app.get("/api")
+async def root_api():
+    return {"message": "Dietik App API is running"}
+
+# Montar archivos estáticos del frontend después de las rutas de la API
+@app.get("/")
+async def read_root():
+    return FileResponse("frontend/login.html")
+
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Configuración CORS para permitir requests del frontend
 app.add_middleware(
@@ -167,10 +180,7 @@ async def get_daily_activity(user_id: str = Depends(verify_token)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching activity: {str(e)}")
 
-# Ruta de prueba
-@app.get("/")
-async def root():
-    return {"message": "Dietik App API is running"}
+
 
 # Endpoint de prueba sin autenticación
 @app.get("/api/test")

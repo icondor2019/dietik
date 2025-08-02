@@ -239,7 +239,7 @@
                 
                 const authToken = localStorage.getItem('authToken');
                 if (authToken) {
-                    window.location.href = '/frontend/welcome.html';
+                    window.location.href = '/static/welcome.html';
                 }
             } catch (error) {
                 console.error('Error durante la inicialización:', error);
@@ -271,7 +271,7 @@
                     localStorage.setItem('authToken', result.access_token);
                     showAlert('¡Login exitoso! Redirigiendo...', 'success');
                     setTimeout(() => {
-                        window.location.href = '/frontend/welcome.html';
+                        window.location.href = '/static/welcome.html';
                     }, 1500);
                 } else {
                     const error = await response.json();

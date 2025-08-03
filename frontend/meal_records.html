@@ -142,83 +142,80 @@
     </style>
 </head>
 <body class="bg-light">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar" style="min-height: 100vh; position: fixed;">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white">🍎 Dietik App</h4>
-                    </div>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="/static/welcome.html">
-                                <i class="fas fa-home me-2"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="/static/daily_activity.html">
-                                <i class="fas fa-dumbbell me-2"></i>Actividad Física
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="/static/nutritional_plans.html">
-                                <i class="fas fa-utensils me-2"></i>Planes Nutricionales
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white active" href="/static/meal_records.html">
-                                <i class="fas fa-list-alt me-2"></i>Control de Registros
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="#" onclick="logout()">
-                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+    <!-- Barra superior con botón hamburguesa -->
+    <nav class="navbar bg-dark navbar-dark">
+        <div class="container-fluid">
+        <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a class="navbar-brand fw-bold ms-2" href="#">🍎 Dietik App</a>
+        </div>
+    </nav>
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Control de Registros</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <span class="badge bg-primary" id="userInfo">Usuario</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Records Table Section -->
-                <div class="records-table">
-                    <button class="btn btn-primary btn-refresh" onclick="loadMeals()">
-                        <i class="fas fa-sync-alt me-2"></i>Actualizar Registros
-                    </button>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Fecha y Hora</th>
-                                    <th colspan="2">Descripción</th>
-                                    <th>Calorías (kcal)</th>
-                                    <th>Proteínas (g)</th>
-                                    <th>Carbohidratos (g)</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mealsTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Alert Container -->
-                <div id="alertContainer"></div>
-            </main>
+    <!-- Menú lateral (offcanvas) -->
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
+        <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="menuLateralLabel">🍎 Dietik App</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="/static/welcome.html"><i class="fas fa-home me-2"></i>Inicio</a>
+            </li>
+            <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="/static/daily_activity.html"><i class="fas fa-dumbbell me-2"></i>Actividad Física</a>
+            </li>
+            <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="/static/nutritional_plans.html"><i class="fas fa-utensils me-2"></i>Planes Nutricionales</a>
+            </li>
+            <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="/static/meal_records.html"><i class="fas fa-list-alt me-2"></i>Control de Registros</a>
+            </li>
+            <li class="nav-item mt-3">
+            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+            </li>
+        </ul>
         </div>
     </div>
+
+    <!-- Main content -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Control de Registros</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group me-2">
+                    <span class="badge bg-primary" id="userInfo">Usuario</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records Table Section -->
+        <div class="records-table">
+            <button class="btn btn-primary btn-refresh" onclick="loadMeals()">
+                <i class="fas fa-sync-alt me-2"></i>Actualizar Registros
+            </button>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th colspan="2">Descripción</th>
+                            <th>Calorías (kcal)</th>
+                            <th>Proteínas (g)</th>
+                            <th>Carbohidratos (g)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mealsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+    </main>
 
     <!-- Confirmation Modal -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1">

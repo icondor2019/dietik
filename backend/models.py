@@ -16,6 +16,7 @@ class UserRegister(BaseModel):
     email: str = Field(..., description="Email del usuario")
     password: str = Field(..., description="Contraseña del usuario")
     name: Optional[str] = Field(None, description="Nombre del usuario")
+    telegram_id: int = Field(..., description="ID de Telegram del usuario")
 
 class Token(BaseModel):
     access_token: str

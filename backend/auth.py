@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from supabase import create_client, Client
 import sys
 import os
+from loguru import logger
 
 # Agregar el directorio raíz al path para importar settings
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -78,7 +79,8 @@ async def authenticate_user(email: str, password: str):
         print(f"Authentication error: {e}")
         return None
 
-async def register_user(email: str, password: str):
+async def register_user(email: str, password: str, telegram_id: int, name: str = None):
+    logger.info(f"Registering user with email: {email} and telegram_id: {telegram_id}")
     """Registrar nuevo usuario en Supabase"""
     try:
         response = supabase.auth.sign_up({
@@ -87,6 +89,9 @@ async def register_user(email: str, password: str):
         })
         
         if response.user:
+            # Crear perfil de usuario en la tabla users y asignar plan por defecto
+            await create_user_profile(response.user.id, telegram_id, name)
+            await create_default_plan(telegram_id)
             return response.user
         return None
     except Exception as e:
@@ -99,7 +104,66 @@ def get_current_user(user_id: str = Depends(verify_token)):
         user_data = supabase.auth.get_user(user_id)
         return user_data.user
     except Exception as e:
+        logger.error(f"Error fetching user data: {e}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
-        ) 
+        )
+
+async def create_user_profile(user_id: str, telegram_id: int,  name: str = None):
+    """Crear perfil de usuario en la tabla clients de Supabase"""
+    try:
+        # Preparar los datos del usuario
+        user_data = {
+            "supabase_user_uuid": user_id,
+            "name": name,
+            "telegram_id": telegram_id
+        }
+
+        # Insertar en la tabla clients
+        response = supabase.table("clients").insert(user_data).execute()
+        
+        if response.data:
+            print(f"User profile created successfully: {user_id}")
+            return response.data[0]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to create user profile"
+            )
+    except Exception as e:
+        print(f"Error creating user profile: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+async def create_default_plan(telegram_id: int):
+    """Crear perfil de usuario en la tabla clients de Supabase"""
+    try:
+        # Preparar los datos del usuario
+        data = {
+            "client_id": telegram_id,
+            "daily_kcal": 1800,
+            "daily_proteine": 120,
+            "daily_carbohydrates": 120,
+            "status": "active"
+        }
+
+        # Insertar en la tabla clients
+        response = supabase.table("plans").insert(data).execute()
+        
+        if response.data:
+            print(f"Default Nutritional plan created successfully: {telegram_id}")
+            return response.data[0]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to create user deafault plan"
+            )
+    except Exception as e:
+        print(f"Error creating user profile: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )

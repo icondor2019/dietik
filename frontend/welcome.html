@@ -325,6 +325,15 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         await loadConfig();
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            showAlert('Por favor, inicia sesión primero', 'warning');
+            setTimeout(() => {
+                window.location.href = '/static/login.html';
+            }, 2000);
+            return;
+        }
         // await loadUserInfo();
         await loadDashboard();
       } catch (err) {

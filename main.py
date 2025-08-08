@@ -85,8 +85,9 @@ async def login(user_credentials: UserLogin):
 async def register(user_credentials: UserRegister):
     try:
         # Registrar usuario en Supabase
-        user = await register_user(user_credentials.email, user_credentials.password)
-        
+        user = await register_user(user_credentials.email, user_credentials.password,
+                                   user_credentials.telegram_id, user_credentials.name)
+
         if user:
             return {"message": "User registered successfully", "user_id": user.id}
         else:

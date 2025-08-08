@@ -89,9 +89,8 @@ async def register_user(email: str, password: str, telegram_id: int, name: str =
         })
         
         if response.user:
-            # Crear perfil de usuario en la tabla users y asignar plan por defecto
+            # Crear perfil de usuario en la tabla users
             await create_user_profile(response.user.id, telegram_id, name)
-            await create_default_plan(telegram_id)
             return response.user
         return None
     except Exception as e:

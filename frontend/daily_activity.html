@@ -332,11 +332,12 @@
         document.addEventListener('DOMContentLoaded', async function() {
             // Cargar configuración primero
             await loadConfig();
-            
+
+            const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 showAlert('Por favor, inicia sesión primero', 'warning');
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/static/login.html';
                 }, 2000);
                 return;
             }

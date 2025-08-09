@@ -322,11 +322,11 @@
                     data.data.forEach(plan => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
+                            <td><span class="badge ${plan.status === 'active' ? 'bg-success' : 'bg-secondary'}">${plan.status}</span></td>
                             <td>${new Date(plan.created_at).toLocaleDateString()}</td>
                             <td>${plan.daily_kcal}</td>
                             <td>${plan.daily_proteine}</td>
                             <td>${plan.daily_carbohydrates}</td>
-                            <td><span class="badge ${plan.status === 'active' ? 'bg-success' : 'bg-secondary'}">${plan.status}</span></td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -398,6 +398,7 @@
                     await loadPlans();
                 } else {
                     logout();
+                    return;
                 }
             } catch (error) {
                 console.error('Error al obtener información del usuario:', error);

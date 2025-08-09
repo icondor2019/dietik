@@ -234,6 +234,7 @@
       if (!res.ok) {
             console.error('Error al cargar el dashboard:', res.statusText);
             alert('Error al cargar el dashboard');
+            logout();
             return;
         }
       console.log('Cargando dashboard...');
@@ -321,7 +322,8 @@
       plugins: [Chart.registry.getPlugin('annotation')]
     });
     }
-
+  
+    // Inicialización
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         await loadConfig();

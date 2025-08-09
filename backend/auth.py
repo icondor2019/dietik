@@ -37,7 +37,7 @@ def create_access_token(data: dict):
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Verificar token JWT y retornar user_id"""
     try:
-        print(f"Verifying token: {credentials.credentials[:20]}...")
+        logger.info(f"Verifying token: {credentials.credentials[:20]}...")
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
@@ -47,10 +47,10 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        print(f"Token verified successfully for user_id: {user_id}")
+        logger.debug(f"Token verified successfully for user_id: {user_id}")
         return user_id
     except jwt.ExpiredSignatureError:
-        print("Token has expired")
+        logger.error("Token has expired")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token expired",

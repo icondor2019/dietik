@@ -355,6 +355,8 @@
                     });
                 } else {
                     showAlert('Error al cargar los registros', 'danger');
+                    logout();
+                    return;
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -439,6 +441,7 @@
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 window.location.href = '/static/login.html';
+                logout();
                 return;
             }
 
@@ -452,9 +455,13 @@
                 if (response.ok) {
                     const userData = await response.json();
                     document.getElementById('userInfo').textContent = userData.user_id;
+
+                    // Cargar las comidas después de verificar el usuario
                     await loadMeals();
+
                 } else {
                     logout();
+                    return;
                 }
             } catch (error) {
                 console.error('Error al obtener información del usuario:', error);

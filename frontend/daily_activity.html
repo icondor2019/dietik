@@ -335,10 +335,8 @@
 
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Por favor, inicia sesión primero', 'warning');
-                setTimeout(() => {
-                    window.location.href = '/static/login.html';
-                }, 2000);
+                window.location.href = '/static/login.html';
+                logout();
                 return;
             }
             
@@ -396,9 +394,15 @@
                     } else {
                         const error = await response.json();
                         showAlert(`Error: ${error.detail}`, 'danger');
+                        logout();
+                        return;
+
                     }
                 } catch (error) {
                     showAlert('Error de conexión', 'danger');
+                    logout();
+                    return;
+
                 }
             });
         }
@@ -415,6 +419,9 @@
                 if (response.ok) {
                     const userData = await response.json();
                     document.getElementById('userInfo').textContent = userData.email;
+                } else {
+                    logout();
+                    return;
                 }
             } catch (error) {
                 console.error('Error loading user info:', error);

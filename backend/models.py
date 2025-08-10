@@ -41,4 +41,5 @@ class NutricionalPlan(BaseModel):
     daily_kcal: int = Field(default=0, description="Calorías diarias (integer)")
     daily_proteine: int = Field(default=0, description="Proteínas diarias (integer)")
     daily_carbohydrates: int = Field(default=0, description="Carbohidratos diarias (integer)")
+    daily_fiber: int = Field(default=0, description="Fibra diaria (integer)")
     status: PlanStatus = Field(default=PlanStatus.ACTIVE, description="Estado del plan (active, inactive)")

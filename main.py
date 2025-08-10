@@ -27,7 +27,7 @@ from configuration.settings import (
 
 # Importar módulos locales
 from backend.auth import create_access_token, verify_token, authenticate_user, register_user, get_current_user
-from backend.models import UserLogin, Token, UserRegister, DailyActivity, NutricionalPlan
+from backend.models import UserLogin, Token, UserRegister, BodyDimensions, NutricionalPlan
 from backend.responses.dashboard_response import DashboardResponse
 # from database import db
 
@@ -119,79 +119,109 @@ async def get_user_profile(user_id: str = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # Endpoint para daily_activity
-@app.post("/api/daily-activity")
-async def create_daily_activity(activity: DailyActivity, user_id: str = Depends(verify_token)):
-    logger.info(f"Creating daily activity for user {user_id}, activity: {activity}")
+@app.post("/api/create/body-dimensions")
+async def create_body_dimensions(activity: BodyDimensions, user_id: str = Depends(verify_token)):
+    logger.info(f"Creating body dimension for user {user_id}, activity: {activity}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         
-        # Primero consultar la tabla clients para obtener el telegram_id
-        client_response = supabase.table("clients")\
-            .select("telegram_id")\
-            .eq("supabase_user_uuid", user_id)\
-            .execute()
-        
-        if not client_response.data:
-            raise HTTPException(status_code=404, detail="Client not found in clients table")
-        
-        telegram_id = client_response.data[0]["telegram_id"]
-        
         # Preparar datos para insertar
         data = {
-            "client_id": telegram_id,  # Usar el telegram_id obtenido de la tabla clients
+            "user_uuid": user_id,
             "peso": activity.peso,
             "grasa": activity.grasa or 0,  # Usar 0 si es None
             "musculo": activity.musculo or 0,  # Usar 0 si es None
-            "hambre": activity.hambre,
-            "ejercicio": activity.ejercicio
+            "cintura": activity.cintura or 0,  # Usar 0 si es None
         }
-        
+
         # Si se proporciona una fecha específica, agregarla
+        bogota_tz = timezone(timedelta(hours=-5))
+        logger.info(f"Activity created_at: {activity.created_at}")
+        logger.info(f"Current time in Bogotá: {datetime.now(bogota_tz).isoformat()}")
+
         if activity.created_at:
-            data["created_at"] = activity.created_at.isoformat()
-        
+            # Si no tiene zona horaria, asumimos que viene en UTC
+            if isinstance(activity.created_at, datetime):
+                activity_datetime = activity.created_at
+            else:
+                # Si es date, convertirlo a datetime al inicio del día
+                activity_datetime = datetime.combine(activity.created_at, datetime.min.time())
+
+            # Manejar zona horaria
+            if activity_datetime.tzinfo is None:
+                activity_utc = activity_datetime.replace(tzinfo=timezone.utc)
+            else:
+                activity_utc = activity_datetime
+
+            bogota_time = activity_utc.astimezone(bogota_tz)
+            data["created_at"] = bogota_time.date().isoformat()
+
         # Insertar en la tabla daily_activity
-        response = supabase.table("daily_activity").insert(data).execute()
-        
+        response = supabase.table("body_dimensions").insert(data).execute()
+
         if response.data:
             return {"message": "Daily activity recorded successfully", "data": response.data[0]}
         else:
             raise HTTPException(status_code=400, detail="Failed to record activity")
             
     except Exception as e:
+        logger.error(f"Error creating body dimension: {str(e)}")
+        logger.exception("Error creating body dimension")
         raise HTTPException(status_code=500, detail=f"Error recording activity: {str(e)}")
 
-@app.get("/api/daily-activity")
-async def get_daily_activity(user_id: str = Depends(verify_token)):
-    logger.info(f"[GET] records for telegam user {user_id}")
+@app.get("/api/body-dimensions")
+async def get_body_mensions(user_id: str = Depends(verify_token)):
+    logger.info(f"[GET] body dimension records for user {user_id}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-        
-        # Primero consultar la tabla clients para obtener el telegram_id
-        client_response = supabase.table("clients")\
-            .select("telegram_id")\
-            .eq("supabase_user_uuid", user_id)\
-            .execute()
-        
-        if not client_response.data:
-            raise HTTPException(status_code=404, detail="Client not found in clients table")
-        
-        telegram_id = client_response.data[0]["telegram_id"]
-        logger.info(f"[GET] Using telegram_id for user {user_id}: {telegram_id}")
-        # Obtener registros del usuario usando el telegram_id como client_id
-        response = supabase.table("daily_activity")\
+
+        response = supabase.table("body_dimensions")\
             .select("*")\
-            .eq("client_id", telegram_id)\
+            .eq("user_uuid", user_id)\
             .order("created_at", desc=True)\
             .limit(10)\
             .execute()
-        
+        # logger.debug(response.data)
         return {"data": response.data}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching activity: {str(e)}")
+
+@app.delete("/api/delete/body-dimensions/{dimension_id}")
+async def delete_dimension(dimension_id: str, user_id: str = Depends(verify_token)):
+    logger.info(f"Deleting body dimension {dimension_id} for user {user_id}")
+    try:
+        from supabase import create_client, Client
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        
+        # Verificar que la comida pertenezca al usuario antes de eliminarla
+        record_response = supabase.table("body_dimensions")\
+            .select("user_uuid")\
+            .eq("uuid", dimension_id)\
+            .single()\
+            .execute()
+
+        logger.debug(record_response.data)
+        if not record_response.data:
+            raise HTTPException(status_code=404, detail="dimension not found")
+            
+        if record_response.data["user_uuid"] != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this meal")
+        
+        # Eliminar la comida
+        response = supabase.table("body_dimensions")\
+            .delete()\
+            .eq("uuid", dimension_id)\
+            .execute()
+        
+        logger.info(f"Deleted body dimension {dimension_id}.response: {response}")
+        
+        return {"message": "Dimension deleted successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting meal: {str(e)}")
 
 # Endpoint de prueba sin autenticación
 @app.get("/api/test")

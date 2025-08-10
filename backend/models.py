@@ -23,14 +23,13 @@ class Token(BaseModel):
     token_type: str
 
 # Modelo para la tabla daily_activity
-class DailyActivity(BaseModel):
+class BodyDimensions(BaseModel):
     uuid: Optional[str] = None
-    client_id: Optional[int] = Field(None, description="ID del usuario (bigint) - se obtiene del token")
+    user_uuid: str = Field(None, description="uuid del user, se obtiene del token")
     peso: float = Field(default=0, description="Peso en kg (numeric(5,2))")
     grasa: Optional[float] = Field(default=0, description="Porcentaje de grasa corporal (numeric(5,2))")
     musculo: Optional[float] = Field(default=0, description="Masa muscular en kg (numeric(5,2))")
-    hambre: int = Field(default=0, description="Nivel de hambre (integer, 0-5)")
-    ejercicio: int = Field(default=0, description="Nivel de ejercicio (integer, 0-5)")
+    cintura: float = Field(default=0, description="circunferencia de cintura en cm (numeric(5,2))")
     created_at: Optional[date] = Field(default_factory=date.today, description="Fecha de la actividad")
 
 class NutricionalPlan(BaseModel):

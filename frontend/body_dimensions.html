@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Activity - Dietik App</title>
+    <title>Medidas - Dietik App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -61,7 +61,32 @@
             border-radius: 0 10px 10px 0;
             transition: all 0.3s ease;
         }
-        
+
+       .delete-button {
+            padding: 4px 8px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background: var(--primary-orange);
+            border: none;
+        }
+
+        .delete-button:hover {
+            transform: scale(1.1);
+            background: #e88505;
+        }
+
+        .dimension-row {
+            transition: all 0.3s ease;
+        }
+
+        .dimension-row:hover {
+            background-color: rgba(24, 143, 167, 0.05) !important;
+        }
+
+        .simension-row.fade-out {
+            opacity: 0;
+            transform: translateX(-100%);
+        }    
         .history-item:hover {
             background-color: #e9ecef;
             transform: translateX(5px);
@@ -153,7 +178,7 @@
             <a class="nav-link text-white" href="/static/welcome.html"><i class="fas fa-home me-2"></i>Inicio</a>
             </li>
             <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/static/daily_activity.html"><i class="fas fa-dumbbell me-2"></i>Actividad Física</a>
+            <a class="nav-link text-white" href="/static/body_dimensions.html"><i class="fas fa-dumbbell me-2"></i>Medidas Corporales</a>
             </li>
             <li class="nav-item mb-2">
             <a class="nav-link text-white" href="/static/nutritional_plans.html"><i class="fas fa-utensils me-2"></i>Planes Nutricionales</a>
@@ -171,7 +196,7 @@
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Actividad Física</h1>
+            <h1 class="h2">Medidas Corporales</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group me-2">
                     <span class="badge bg-primary" id="userInfo">Usuario</span>
@@ -184,7 +209,7 @@
             <!-- Form Section -->
             <div class="card activity-card mb-4">
                 <div class="card-header text-white">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Registrar Actividad Diaria</h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Registrar Medidas Corporales</h5>
                 </div>
                 <div class="card-body">
                     <form id="activityForm">
@@ -208,52 +233,40 @@
                                 <input type="number" class="form-control" id="musculo" name="musculo" step="0.1" placeholder="0">
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="hambre" class="form-label">Nivel de Hambre (0-5)</label>
-                                <select class="form-select" id="hambre" name="hambre">
-                                    <option value="0" selected>0 - Sin registro</option>
-                                    <option value="1">1 - Sin hambre</option>
-                                    <option value="2">2 - Poco hambre</option>
-                                    <option value="3">3 - Moderado</option>
-                                    <option value="4">4 - Hambriento</option>
-                                    <option value="5">5 - Muy hambriento</option>
-                                </select>
+                                <label for="grasa" class="form-label">Cintura (cm)</label>
+                                <input type="number" class="form-control" id="cintura" name="cintura" step="0.1" placeholder="0">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="ejercicio" class="form-label">Nivel de Ejercicio (0-5)</label>
-                                <select class="form-select" id="ejercicio" name="ejercicio">
-                                    <option value="0" selected>0 - Sin registro</option>
-                                    <option value="1">1 - Sin ejercicio</option>
-                                    <option value="2">2 - Ejercicio ligero</option>
-                                    <option value="3">3 - Ejercicio moderado</option>
-                                    <option value="4">4 - Ejercicio intenso</option>
-                                    <option value="5">5 - Ejercicio muy intenso</option>
-                                </select>
-                            </div>
+                        <!-- espacio para otra medida -->
                         </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Guardar Actividad
-                            </button>
-                        </div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Guardar Medidas</button>
+                        <!-- </div> -->
                     </form>
                 </div>
             </div>
 
             <!-- History Section -->
-            <div class="card activity-card">
-                <div class="card-header text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Actividades Recientes</h5>
-                    <button class="btn btn-light btn-sm" onclick="refreshHistory()">
-                        <i class="fas fa-sync-alt me-1"></i>Actualizar
-                    </button>
+            <div class="mb-4">
+                <button class="btn btn-primary" onclick="loadHistory()"><i class="fas fa-sync-alt me-2"></i>Actualizar Planes</button>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Peso</th>
+                                <th>Grasa</th>
+                                <th>Músculo</th>
+                                <th>Cintura</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dimensionsTableBody">
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <div id="historyList">
-                        <!-- Los datos se cargarán aquí dinámicamente -->
-                    </div>
-                </div>
+            </div>
             </div>
         </div>
 
@@ -261,13 +274,33 @@
         <div id="alertContainer" class="mt-3"></div>
     </main>
 
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar este registro?
+                    <p class="text-muted mt-2" id="elementDetails"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Variables globales
         let authToken = localStorage.getItem('authToken');
-        // Configuración de la API - se carga dinámicamente desde el backend
         let API_BASE_URL;
         let configLoaded = false;
+        let deleteModal;
+        let elementToDelete = null;
 
         // Función para construir URLs de la API
         function getApiUrl(endpoint) {
@@ -330,6 +363,17 @@
 
         // Verificar autenticación al cargar
         document.addEventListener('DOMContentLoaded', async function() {
+            // Inicializar el modal
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            
+            // Configurar el botón de confirmación
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (elementToDelete) {
+                    deleteDimension(elementToDelete);
+                    deleteModal.hide();
+                    elementToDelete = null;
+                }
+            });
             // Cargar configuración primero
             await loadConfig();
 
@@ -365,13 +409,12 @@
                     peso: formData.get('peso') ? parseFloat(formData.get('peso')) : 0,
                     grasa: formData.get('grasa') ? parseFloat(formData.get('grasa')) : 0,
                     musculo: formData.get('musculo') ? parseFloat(formData.get('musculo')) : 0,
-                    hambre: parseInt(formData.get('hambre')) || 0,
-                    ejercicio: parseInt(formData.get('ejercicio')) || 0,
+                    cintura: parseInt(formData.get('cintura')) || 0,
                     created_at: formData.get('created_at') || null
                 };
 
                 try {
-                    const response = await fetch(getApiUrl('/api/daily-activity'), {
+                    const response = await fetch(getApiUrl('/api/create/body-dimensions'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -382,7 +425,7 @@
 
                     if (response.ok) {
                         const result = await response.json();
-                        showAlert('Actividad registrada exitosamente!', 'success');
+                        showAlert('Medidas registradas exitosamente!', 'success');
                         form.reset();
                         
                         // Establecer fecha por defecto nuevamente
@@ -394,7 +437,6 @@
                     } else {
                         const error = await response.json();
                         showAlert(`Error: ${error.detail}`, 'danger');
-                        logout();
                         return;
 
                     }
@@ -428,7 +470,7 @@
             }
         }
 
-        // Mostrar página de actividad
+        // Mostrar página de Medidas Corporales
         function showActivityPage() {
             document.getElementById('activityPage').style.display = 'block';
         }
@@ -436,115 +478,93 @@
         // Cargar historial
         async function loadHistory() {
             try {
-                const response = await fetch(getApiUrl('/api/daily-activity'), {
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    console.error('No se encontró el token de autenticación');
+                    showAlert('No hay sesión activa. Por favor, inicie sesión nuevamente.', 'danger');
+                    return;
+                }
+                const response = await fetch(getApiUrl('/api/body-dimensions'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
 
                 if (response.ok) {
-                    const result = await response.json();
-                    displayGroupedHistory(result.data);
+                    const data = await response.json();
+                    // if (activities.length === 0) {
+                    //     historyList.innerHTML = '<p class="text-muted">No hay registros de medidas</p>';
+                    //     return;
+                    
+                    const DimensionsTable = document.getElementById('dimensionsTableBody');
+                    DimensionsTable.innerHTML = '';
+
+                    data.data.forEach(activity => {
+                        const row = document.createElement('tr');
+                        row.className = 'dimension-row';
+                        row.dataset.dimensionId = activity.uuid;
+                        row.innerHTML = `
+                            <td>${new Date(activity.created_at).toLocaleDateString()}</td>
+                            <td>${activity.peso?.toFixed(1) || '0'}</td>
+                            <td>${activity.grasa?.toFixed(1) || '0'}</td>
+                            <td>${activity.musculo?.toFixed(1) || '0'}</td>
+                            <td>${activity.cintura?.toFixed(1) || '0'}</td>
+                            <td>
+                                <button class="btn btn-light delete-button" onclick="deleteDimension('${activity.uuid}')">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            </td>
+                        `;
+                        DimensionsTable.appendChild(row);
+                    });
                 } else {
                     showAlert('Error al cargar el historial', 'danger');
+                    return;
                 }
             } catch (error) {
-                showAlert('Error de conexión', 'danger');
+                console.error('Error al cargar el historial:', error);
+                showAlert(error, 'danger');
+                return;
             }
-        }
 
         // Actualizar historial (función del botón refresh)
         async function refreshHistory() {
             await loadHistory();
             showAlert('Historial actualizado', 'success');
         }
+        }
+        // Función para mostrar el modal de confirmación
+        function showDeleteConfirmation(elementId) {
+            elementToDelete = elementId;
+            document.getElementById('elementDetails').textContent = `elementId: ${elementId}`;
+            deleteModal.show();
+        }
 
-        // Mostrar historial agrupado por día
-        function displayGroupedHistory(activities) {
-            const historyList = document.getElementById('historyList');
-            
-            if (activities.length === 0) {
-                historyList.innerHTML = '<p class="text-muted">No hay registros de actividad</p>';
-                return;
-            }
-
-            // Agrupar actividades por día
-            const groupedByDay = {};
-            activities.forEach(activity => {
-                const date = activity.created_at.split('T')[0]; // Obtener solo la fecha
-                if (!groupedByDay[date]) {
-                    groupedByDay[date] = [];
-                }
-                groupedByDay[date].push(activity);
-            });
-
-            // Calcular valores máximos por día
-            const dailyMaxValues = {};
-            Object.keys(groupedByDay).forEach(date => {
-                const dayActivities = groupedByDay[date];
-                dailyMaxValues[date] = {
-                    peso: Math.max(...dayActivities.map(a => a.peso || 0)),
-                    grasa: Math.max(...dayActivities.map(a => a.grasa || 0)),
-                    musculo: Math.max(...dayActivities.map(a => a.musculo || 0)),
-                    hambre: Math.max(...dayActivities.map(a => a.hambre || 0)),
-                    ejercicio: Math.max(...dayActivities.map(a => a.ejercicio || 0)),
-                    count: dayActivities.length
-                };
-            });
-
-            // Ordenar fechas de más reciente a más antigua
-            const sortedDates = Object.keys(dailyMaxValues).sort((a, b) => new Date(b) - new Date(a));
-
-            historyList.innerHTML = sortedDates.map(date => {
-                const values = dailyMaxValues[date];
-                const formattedDate = new Date(date).toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+        // Función para eliminar una comida
+        async function deleteDimension(dimensionId) {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(getApiUrl(`/api/delete/body-dimensions/${dimensionId}`), {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
                 });
-                
-                return `
-                    <div class="history-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-3">
-                                <h6 class="mb-1"><strong>${formattedDate}</strong></h6>
-                                <small class="text-muted">${values.count} registro${values.count > 1 ? 's' : ''}</small>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="text-center">
-                                    <div class="fw-bold text-primary">${values.peso.toFixed(1)}</div>
-                                    <small class="text-muted">kg</small>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="text-center">
-                                    <div class="fw-bold text-warning">${values.grasa.toFixed(1)}</div>
-                                    <small class="text-muted">% grasa</small>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="text-center">
-                                    <div class="fw-bold text-success">${values.musculo.toFixed(1)}</div>
-                                    <small class="text-muted">kg músculo</small>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="text-center">
-                                    <div class="fw-bold text-info">${values.hambre}</div>
-                                    <small class="text-muted">hambre</small>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="text-center">
-                                    <div class="fw-bold text-danger">${values.ejercicio}</div>
-                                    <small class="text-muted">ejercicio</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+
+                if (response.ok) {                    
+                    // Esperar a que termine la animación antes de recargar
+                    setTimeout(() => {
+                        loadHistory();
+                    }, 300);
+                    
+                    showAlert('Registro eliminado exitosamente', 'success');
+                } else {
+                    showAlert('Error al eliminar el registro', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error, 'danger');
+            }
         }
 
         // Mostrar alertas

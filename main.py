@@ -288,7 +288,7 @@ async def delete_meal(meal_id: str, user_id: str = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Error deleting meal: {str(e)}")
 
 # Endpoints para planes nutricionales
-@app.post("/api/nutritional-plans")
+@app.post("/api/new-nutritional-plan")
 async def create_nutritional_plan(plan: NutricionalPlan, user_id: str = Depends(verify_token)):
     logger.info(f"Creating nutritional plan for user {user_id}")
     try:
@@ -312,6 +312,7 @@ async def create_nutritional_plan(plan: NutricionalPlan, user_id: str = Depends(
             "daily_kcal": plan.daily_kcal,
             "daily_proteine": plan.daily_proteine,
             "daily_carbohydrates": plan.daily_carbohydrates,
+            "daily_fiber": plan.daily_fiber,
             "status": plan.status
         }
         
@@ -366,7 +367,7 @@ async def get_nutritional_plans(user_id: str = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Error fetching plans: {str(e)}")
 
 @app.get("/api/dashboard")
-async def get_nutritional_plans(user_id: str = Depends(verify_token)):
+async def get_nutritional_activity(user_id: str = Depends(verify_token)):
     # Obtener la hora actual en Bogotá
     logger.info(f"Generating dashboard for user {user_id}")
     bogota_tz = timezone(timedelta(hours=-5))
@@ -390,12 +391,12 @@ async def get_nutritional_plans(user_id: str = Depends(verify_token)):
         
         # Obtener planes nutricionales del usuario
         plan_response = supabase.table("plans")\
-            .select("daily_kcal, daily_proteine")\
+            .select("daily_kcal, daily_proteine, daily_fiber")\
             .eq("client_id", telegram_id)\
             .eq("status", "active")\
             .limit(1)\
             .execute()
-        
+
         # Obtener registros de alimentos de la semana
         meals_response = supabase.table("meals")\
             .select("created_at, energia_kcal, proteina_gr, carbohidratos_gr, fibra_gr")\
@@ -415,7 +416,7 @@ async def get_nutritional_plans(user_id: str = Depends(verify_token)):
             ]
         plan_kcal = plan_response.data[0]["daily_kcal"]
         plan_proteine = plan_response.data[0]["daily_proteine"]
-        plan_fiber = 25  # Valor fijo por ahora
+        plan_fiber = plan_response.data[0]["daily_fiber"]
 
         today_kcal = sum(m.get("energia_kcal", 0) or 0 for m in meals_today)
         today_prot = sum(m.get("proteina_gr", 0) or 0 for m in meals_today)

@@ -28,6 +28,7 @@ from configuration.settings import (
 # Importar módulos locales
 from backend.auth import create_access_token, verify_token, authenticate_user, register_user, get_current_user
 from backend.models import UserLogin, Token, UserRegister, DailyActivity, NutricionalPlan
+from backend.responses.dashboard_response import DashboardResponse
 # from database import db
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
@@ -401,8 +402,13 @@ async def get_nutritional_plans(user_id: str = Depends(verify_token)):
             .eq("client_id", telegram_id)\
             .gte("created_at", (datetime.now() - timedelta(weeks=1)).isoformat())\
             .execute()
-        logger.info(f"Meals response: {meals_response.data}")
-    
+        logger.info(f"Meals response: {len(meals_response.data)} records found")
+
+        dashboard_response = DashboardResponse()
+        if len(plan_response.data) == 0:
+            logger.warning(f"No meal records found for user {user_id}")
+            return dashboard_response.model_dump()
+
         meals_today = [
             m for m in meals_response.data
             if datetime.fromisoformat(m["created_at"]).date() == today
@@ -426,27 +432,25 @@ async def get_nutritional_plans(user_id: str = Depends(verify_token)):
 
         today_meal_count = len(meals_today)
 
-        response = {
-            "plan_kcal": plan_kcal,
-            "plan_proteine": plan_proteine,
-            "plan_fiber": plan_fiber,
-            "today_kcal": round(today_kcal),
-            "today_proteine": round(today_prot),
-            "today_carbohidratos": round(today_carb),
-            "today_fiber": round(today_fiber),
-            "today_kcal_pct": round(today_kcal_pct),
-            "today_prot_pct": round(today_prot_pct),
-            "today_fiber_pct": round(today_fiber_pct),
-            "meals_count": len(meals_today),
-            "today_kcal_left": round(today_kcal_left),
-            "today_prot_left": round(today_prot_left),
-            "today_fiber_left": round(today_fiber_left),
-            "today_meal_count": round(today_meal_count),
-            "today_date": today.isoformat()
-        }
-        logger.info(f"Dashboard response: {response}")
-        print(response)
-        return response
+        dashboard_response.plan_kcal = plan_kcal
+        dashboard_response.plan_proteine = plan_proteine
+        dashboard_response.plan_fiber = plan_fiber
+        dashboard_response.today_kcal = round(today_kcal)
+        dashboard_response.today_proteine = round(today_prot)
+        dashboard_response.today_carbohidratos = round(today_carb)
+        dashboard_response.today_fiber = round(today_fiber)
+        dashboard_response.today_kcal_pct = round(today_kcal_pct)
+        dashboard_response.today_prot_pct = round(today_prot_pct)
+        dashboard_response.today_fiber_pct = round(today_fiber_pct)
+        dashboard_response.meals_count = len(meals_today)
+        dashboard_response.today_kcal_left = round(today_kcal_left)
+        dashboard_response.today_prot_left = round(today_prot_left)
+        dashboard_response.today_fiber_left = round(today_fiber_left)
+        dashboard_response.today_meal_count = round(today_meal_count)
+        dashboard_response.today_date = today  # Asumiendo que "today" es datetime
+        logger.info(f"Dashboard response: {dashboard_response}")
+
+        return dashboard_response.model_dump()
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching plans: {str(e)}")

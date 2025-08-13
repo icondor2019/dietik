@@ -409,7 +409,7 @@
                     peso: formData.get('peso') ? parseFloat(formData.get('peso')) : 0,
                     grasa: formData.get('grasa') ? parseFloat(formData.get('grasa')) : 0,
                     musculo: formData.get('musculo') ? parseFloat(formData.get('musculo')) : 0,
-                    cintura: parseInt(formData.get('cintura')) || 0,
+                    cintura: formData.get('cintura') ? parseFloat(formData.get('cintura')) : 0,
                     created_at: formData.get('created_at') || null
                 };
 

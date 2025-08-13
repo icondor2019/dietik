@@ -375,7 +375,7 @@
         async function deleteMeal(mealId) {
             try {
                 const authToken = localStorage.getItem('authToken');
-                const response = await fetch(getApiUrl(`/meals/${mealId}`), {
+                const response = await fetch(getApiUrl(`api/meals/delete/${mealId}`), {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -398,7 +398,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('Error al eliminar el registro', 'danger');
+                showAlert(error, 'danger');
             }
         }
 

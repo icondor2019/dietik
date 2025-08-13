@@ -276,8 +276,9 @@ async def get_meals(user_id: str = Depends(verify_token)):
         logger.error(f"Error general en get_meals: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error in get_meals: {str(e)}")
 
-@app.delete("/api/meals/{meal_id}")
+@app.delete("/api/meals/delete/{meal_id}")
 async def delete_meal(meal_id: str, user_id: str = Depends(verify_token)):
+    logger.info(f"Deleting meal {meal_id} for user {user_id}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -479,7 +480,7 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         dashboard_response.today_fiber_left = round(today_fiber_left)
         dashboard_response.today_meal_count = round(today_meal_count)
         dashboard_response.today_date = today  # Asumiendo que "today" es datetime
-        logger.info(f"Dashboard response: {dashboard_response}")
+        # logger.info(f"Dashboard response: {dashboard_response}")
 
         return dashboard_response.model_dump()
         

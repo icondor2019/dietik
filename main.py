@@ -430,7 +430,7 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
 
         # Obtener registros de alimentos de la semana
         meals_response = supabase.table("meals")\
-            .select("created_at, energia_kcal, proteina_gr, carbohidratos_gr, fibra_gr")\
+            .select("created_at, energia_kcal, proteina_gr, carbohidratos_gr, fibra_gr, grasas_gr")\
             .eq("client_id", telegram_id)\
             .gte("created_at", (datetime.now() - timedelta(weeks=1)).isoformat())\
             .execute()
@@ -451,8 +451,9 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
 
         today_kcal = sum(m.get("energia_kcal", 0) or 0 for m in meals_today)
         today_prot = sum(m.get("proteina_gr", 0) or 0 for m in meals_today)
-        today_carb = sum(m.get("carbohidratos_gr", 0) or 0 for m in meals_today)
+        today_raw_carb = sum(m.get("carbohidratos_gr", 0) or 0 for m in meals_today)
         today_fiber = sum(m.get("fibra_gr", 0) or 0 for m in meals_today)
+        today_grasa = sum(m.get("grasas_gr", 0) or 0 for m in meals_today)
 
         today_kcal_pct = (today_kcal / plan_kcal * 100) if plan_kcal > 0 else 0
         today_prot_pct = (today_prot / plan_proteine * 100) if plan_proteine > 0 else 0
@@ -461,26 +462,31 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         today_kcal_left = plan_kcal - today_kcal
         today_prot_left = plan_proteine - today_prot
         today_fiber_left = round(plan_fiber - today_fiber)
-
+        today_carb  = round(today_raw_carb - today_fiber ) # Carbohidratos netos
         today_meal_count = len(meals_today)
 
+        # valores del plan
         dashboard_response.plan_kcal = plan_kcal
         dashboard_response.plan_proteine = plan_proteine
         dashboard_response.plan_fiber = plan_fiber
+
+        # consumo de hoy
         dashboard_response.today_kcal = round(today_kcal)
         dashboard_response.today_proteine = round(today_prot)
         dashboard_response.today_carbohidratos = round(today_carb)
         dashboard_response.today_fiber = round(today_fiber)
+        dashboard_response.today_grasa = round(today_grasa)
+        # porcentajes
         dashboard_response.today_kcal_pct = round(today_kcal_pct)
         dashboard_response.today_prot_pct = round(today_prot_pct)
         dashboard_response.today_fiber_pct = round(today_fiber_pct)
-        dashboard_response.meals_count = len(meals_today)
+        # lo que queda
         dashboard_response.today_kcal_left = round(today_kcal_left)
         dashboard_response.today_prot_left = round(today_prot_left)
         dashboard_response.today_fiber_left = round(today_fiber_left)
-        dashboard_response.today_meal_count = round(today_meal_count)
+        
         dashboard_response.today_date = today  # Asumiendo que "today" es datetime
-        # logger.info(f"Dashboard response: {dashboard_response}")
+        logger.info(f"Dashboard response: {dashboard_response}")
 
         return dashboard_response.model_dump()
         

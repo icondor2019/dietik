@@ -48,6 +48,13 @@
       -webkit-text-fill-color: transparent;
       animation: gradientMove 8s ease infinite;
     }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      height: 200px;
+    }
     @keyframes gradientMove {
       0% {
         background-position: 0% 50%;
@@ -142,7 +149,20 @@
           <p>Restantes hoy: <strong><span id="todayFiberLeft">-</span> g</strong></p>
         </div>
       </div>
-      <canvas id="nutritionChart" width="400" height="200"></canvas>
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <h3 class="text-center">Cumplimiento de metas</h3>
+          <div class="chart-container">
+            <canvas id="nutritionChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h3 class="text-center">Macros Totales</h3>
+          <div class="chart-container">
+            <canvas id="macrosPieChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -256,6 +276,7 @@
       // document.getElementById('todayFiberPercent').textContent = data.today_fiber_pct;
       document.getElementById('todayFiberLeft').textContent = data.today_fiber_left;
 
+    // Char current day monitoring
     const ctx = document.getElementById('nutritionChart').getContext('2d');
     if (window.nutritionChartInstance) window.nutritionChartInstance.destroy();
 
@@ -264,11 +285,17 @@
       data: {
         labels: ['Calorías', 'Proteínas', 'Fibra'],
         datasets: [{
-          label: '% Consumo diario',
+          label: '% Consumo de hoy',
           data: [data.today_kcal_pct, data.today_prot_pct, data.today_fiber_pct],
           backgroundColor: ctx => {
-            const value = ctx.raw;
-            return value > 100 ? '#d9534f' : (ctx.dataIndex === 0 ? '#ff9505' : '#188fa7'); // rojo si >100%
+            // const value = ctx.raw;
+          const colors = {
+            0: '#e29578ff', // Naranja para Calorías
+            1: '#83c5beff', // Azul para Proteínas
+            2: '#ffddd2ff'  // Verde para Fibra
+          };
+          // Si el valor es mayor a 100%, mostrar en rojo
+          return ctx.raw > 100 ? '#d9534f' : colors[ctx.dataIndex];
           },
           borderRadius: 6,
           barThickness: 20
@@ -320,6 +347,48 @@
         }
       },
       plugins: [Chart.registry.getPlugin('annotation')]
+    });
+    // Pie chart
+    const pieCtx = document.getElementById('macrosPieChart').getContext('2d');
+    if (window.nutritionPieChartInstance) window.nutritionPieChartInstance.destroy();
+
+    window.nutritionPieChartInstance = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Grasas', 'Proteínas', 'Fibra', 'Carbohidratos'],
+        datasets: [{
+          label: '% Consumo diario',
+          data: [data.today_grasa, data.today_proteine, data.today_fiber, data.today_carbohidratos],
+          backgroundColor: [
+            '#006d77ff', // Grasas
+            '#83c5beff', // Proteínas
+            '#ffddd2ff',  // Fibra
+            '#e29578ff'  // Carbohidratos
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 0,    // reduce espacio arriba
+            bottom: 0,
+            left: 0,
+            right: 0
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.label}: ${ctx.raw} g`
+            }
+          },
+          legend: { position: 'right', labels: { padding: 10 } }
+        }
+      }
     });
     }
   

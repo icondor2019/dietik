@@ -463,7 +463,19 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         today_prot_left = plan_proteine - today_prot
         today_fiber_left = round(plan_fiber - today_fiber)
         today_carb  = round(today_raw_carb - today_fiber ) # Carbohidratos netos
-        today_meal_count = len(meals_today)
+        
+        # Procesar datos históricos por día
+        daily_totals = {}
+        for meal in meals_response.data:
+            date = datetime.fromisoformat(meal["created_at"]).date()
+            if date not in daily_totals:
+                daily_totals[date] = 0
+            daily_totals[date] += meal.get("energia_kcal", 0) or 0
+
+        # Ordenar por fecha y obtener últimos 7 días
+        sorted_dates = sorted(daily_totals.keys())
+        last_7_days = sorted_dates[-7:] if len(sorted_dates) > 7 else sorted_dates
+        
 
         # valores del plan
         dashboard_response.plan_kcal = plan_kcal
@@ -486,7 +498,12 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         dashboard_response.today_fiber_left = round(today_fiber_left)
         
         dashboard_response.today_date = today  # Asumiendo que "today" es datetime
-        logger.info(f"Dashboard response: {dashboard_response}")
+        dashboard_response.weekly_kcal = {
+            date.strftime("%Y-%m-%d"): round(daily_totals[date])
+            for date in last_7_days
+        }
+
+        # logger.info(f"Dashboard response: {dashboard_response}")
 
         return dashboard_response.model_dump()
         

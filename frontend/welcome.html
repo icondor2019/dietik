@@ -55,6 +55,16 @@
       margin: 0 auto;
       height: 200px;
     }
+
+    .weekly-chart-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Para scroll suave en iOS */
+    }
+
+    .weekly-chart-wrapper {
+        min-width: 600px; /* Ancho mínimo del gráfico */
+        height: 400px;    /* Altura fija del gráfico */
+    }
     @keyframes gradientMove {
       0% {
         background-position: 0% 50%;
@@ -151,15 +161,29 @@
       </div>
       <div class="row mt-4">
         <div class="col-md-6">
-          <h3 class="text-center">Cumplimiento de metas</h3>
-          <div class="chart-container">
-            <canvas id="nutritionChart" width="400" height="200"></canvas>
+          <div class="card">
+            <div class="card-header">Cumplimiento de metas</div>
+            <div class="chart-container">
+              <canvas id="nutritionChart" width="400" height="200"></canvas>
+            </div>
           </div>
         </div>
         <div class="col-md-6">
-          <h3 class="text-center">Macros Totales</h3>
-          <div class="chart-container">
-            <canvas id="macrosPieChart" width="400" height="200"></canvas>
+          <div class="card">
+            <div class="card-header">Macros Totales</div>
+            <div class="chart-container">
+              <canvas id="macrosPieChart" width="400" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-header">
+          Consumo Calórico Semanal
+        </div>
+        <div class="card-body weekly-chart-container">
+          <div class="weekly-chart-wrapper">
+            <canvas id="weeklyChart"></canvas>
           </div>
         </div>
       </div>
@@ -238,6 +262,59 @@
     function logout() {
       localStorage.removeItem('authToken');
       window.location.href = '/static/login.html';
+    }
+
+    // Función para crear el gráfico semanal
+    function createWeeklyChart(weeklyData) {
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        
+        // Convertir fechas a nombres de días
+        const labels = Object.keys(weeklyData).map(date => {
+            const d = new Date(date);
+            return d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' });
+        });
+        
+        const data = Object.values(weeklyData);
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Calorías Diarias',
+                    data: data,
+                    borderColor: '#83c5beff',
+                    backgroundColor: '#edf6f9ff',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Consumo Calórico Última Semana'
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 500,
+                        title: {
+                            display: true,
+                            text: 'Calorías (kcal)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Fecha'
+                        }
+                    }
+                }
+            }
+        });
     }
 
     async function loadDashboard() {
@@ -390,6 +467,10 @@
         }
       }
     });
+    // Crear gráfico semanal
+    if (data.weekly_kcal) {
+        createWeeklyChart(data.weekly_kcal);
+    }
     }
   
     // Inicialización

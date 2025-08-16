@@ -20,6 +20,7 @@ class DashboardResponse(BaseModel):
     today_prot_left: float = Field(default=0)
     today_fiber_left: float = Field(default=0)
     today_date: datetime = Field(default_factory=datetime.utcnow)
+    weekly_kcal: dict = Field(default_factory=dict, description="Calorías diarias de la última semana")
 
     class Config:
         extra = "forbid"  # Campos adicionales NO permitidos

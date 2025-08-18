@@ -391,7 +391,9 @@
             setupForm();
             
             // Establecer fecha por defecto (hoy)
-            const today = new Date().toISOString().split('T')[0];
+            const options = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+            const formatter = new Intl.DateTimeFormat("sv-SE", options); // sv-SE da formato YYYY-MM-DD
+            const today = formatter.format(new Date());
             document.getElementById('created_at').value = today;
             
             // Cargar historial inicial
@@ -428,10 +430,11 @@
                         showAlert('Medidas registradas exitosamente!', 'success');
                         form.reset();
                         
-                        // Establecer fecha por defecto nuevamente
-                        const today = new Date().toISOString().split('T')[0];
-                        document.getElementById('created_at').value = today;
-                        
+                        const options = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+                        const formatter = new Intl.DateTimeFormat("sv-SE", options);
+                        const today_2 = formatter.format(new Date());
+                        document.getElementById('created_at').value = today_2;
+
                         // Actualizar historial automáticamente
                         loadHistory();
                     } else {
@@ -504,7 +507,7 @@
                         row.className = 'dimension-row';
                         row.dataset.dimensionId = activity.uuid;
                         row.innerHTML = `
-                            <td>${new Date(activity.created_at).toLocaleDateString()}</td>
+                            <td>${activity.created_at}</td>
                             <td>${activity.peso?.toFixed(1) || '0'}</td>
                             <td>${activity.grasa?.toFixed(1) || '0'}</td>
                             <td>${activity.musculo?.toFixed(1) || '0'}</td>

@@ -194,6 +194,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
   <script>
     let API_BASE_URL = '';
@@ -270,8 +271,13 @@
         
         // Convertir fechas a nombres de días
         const labels = Object.keys(weeklyData).map(date => {
-            const d = new Date(date);
-            return d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' });
+            const d = new Date(date + 'T00:00:00-05:00');  // -05:00 para hora de Bogotá
+            return d.toLocaleDateString('es-ES', { 
+              weekday: 'short', 
+              month: 'short', 
+              day: 'numeric',
+              timeZone: 'America/Bogota'
+             });
         });
         
         const data = Object.values(weeklyData);
@@ -296,6 +302,17 @@
                     title: {
                         display: true,
                         text: 'Consumo Calórico Última Semana'
+                    },
+                    datalabels: {
+                        align: 'top',
+                        anchor: 'end',
+                        offset: 5,
+                        color: '#495057',
+                        font: {
+                            weight: 'bold',
+                            size: 11
+                        },
+                        formatter: (value) => Math.round(value)
                     }
                 },
                 scales: {
@@ -313,7 +330,8 @@
                         }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]  // Add the datalabels plugin
         });
     }
 
@@ -341,17 +359,17 @@
       document.getElementById('planKcalGoal').textContent = data.plan_kcal;
       document.getElementById('todayKcal').textContent = data.today_kcal;
       // document.getElementById('todayKcalPercent').textContent = data.today_kcal_pct;
-      document.getElementById('todayKcalLeft').textContent = data.today_kcal_left;
+      document.getElementById('todayKcalLeft').textContent = Math.max(0, data.plan_kcal - data.today_kcal);
 
       document.getElementById('planProteinGoal').textContent = data.plan_proteine;
       document.getElementById('todayProtein').textContent = data.today_proteine;
       // document.getElementById('todayProteinPercent').textContent = data.today_prot_pct;
-      document.getElementById('todayProteinLeft').textContent = data.today_prot_left;
+      document.getElementById('todayProteinLeft').textContent = Math.max(0, data.plan_proteine - data.today_proteine);
 
       document.getElementById('planFiberGoal').textContent = data.plan_fiber;
       document.getElementById('todayFiber').textContent = data.today_fiber;
       // document.getElementById('todayFiberPercent').textContent = data.today_fiber_pct;
-      document.getElementById('todayFiberLeft').textContent = data.today_fiber_left;
+      document.getElementById('todayFiberLeft').textContent = Math.max(0, data.plan_fiber - data.today_fiber);
 
     // Char current day monitoring
     const ctx = document.getElementById('nutritionChart').getContext('2d');
@@ -363,7 +381,11 @@
         labels: ['Calorías', 'Proteínas', 'Fibra'],
         datasets: [{
           label: '% Consumo de hoy',
-          data: [data.today_kcal_pct, data.today_prot_pct, data.today_fiber_pct],
+          data: [
+              (data.today_kcal / data.plan_kcal * 100).toFixed(1),
+              (data.today_proteine / data.plan_proteine * 100).toFixed(1),
+              (data.today_fiber / data.plan_fiber * 100).toFixed(1)
+          ],
           backgroundColor: ctx => {
             // const value = ctx.raw;
           const colors = {
@@ -410,13 +432,16 @@
                 type: 'line',
                 xMin: 100,
                 xMax: 100,
-                borderColor: '#000',
+                borderColor: 'rgba(0, 109, 119, 0.6)',
                 borderWidth: 2,
                 borderDash: [6, 4],
                 label: {
                   content: 'Meta',
                   enabled: true,
-                  position: 'start'
+                  position: 'center',
+                  xAdjust: 30,                    // Move label 10px to the right
+                  // yAdjust: -10,                   // Move label 10px up
+                  backgroundColor: 'rgba(0, 109, 119, 0.5)',
                 }
               }
             }
@@ -429,13 +454,26 @@
     const pieCtx = document.getElementById('macrosPieChart').getContext('2d');
     if (window.nutritionPieChartInstance) window.nutritionPieChartInstance.destroy();
 
+    // Calcular el total y los porcentajes
+    const totalMacros = (data.today_grasa || 0) + 
+                        (data.today_proteine || 0) + 
+                        (data.today_fiber || 0) + 
+                        (data.today_carbohidratos || 0);
+
+    const macrosPercentages = [
+        ((data.today_grasa / totalMacros) * 100).toFixed(0),
+        ((data.today_proteine / totalMacros) * 100).toFixed(0),
+        ((data.today_fiber / totalMacros) * 100).toFixed(0),
+        ((data.today_carbohidratos / totalMacros) * 100).toFixed(0)
+    ];
+
     window.nutritionPieChartInstance = new Chart(pieCtx, {
       type: 'pie',
       data: {
         labels: ['Grasas', 'Proteínas', 'Fibra', 'Carbohidratos'],
         datasets: [{
           label: '% Consumo diario',
-          data: [data.today_grasa, data.today_proteine, data.today_fiber, data.today_carbohidratos],
+          data: macrosPercentages,
           backgroundColor: [
             '#006d77ff', // Grasas
             '#83c5beff', // Proteínas
@@ -460,7 +498,7 @@
         plugins: {
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.raw} g`
+              label: ctx => `${ctx.label}: ${ctx.raw} %`
             }
           },
           legend: { position: 'right', labels: { padding: 10 } }

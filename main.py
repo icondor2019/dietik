@@ -133,31 +133,9 @@ async def create_body_dimensions(activity: BodyDimensions, user_id: str = Depend
             "grasa": activity.grasa or 0,  # Usar 0 si es None
             "musculo": activity.musculo or 0,  # Usar 0 si es None
             "cintura": activity.cintura or 0,  # Usar 0 si es None
+            "created_at": activity.created_at.isoformat()  # Usar ahora si no se proporciona
         }
 
-        # Si se proporciona una fecha específica, agregarla
-        bogota_tz = timezone(timedelta(hours=-5))
-        logger.info(f"Activity created_at: {activity.created_at}")
-        logger.info(f"Current time in Bogotá: {datetime.now(bogota_tz).isoformat()}")
-
-        if activity.created_at:
-            # Si no tiene zona horaria, asumimos que viene en UTC
-            if isinstance(activity.created_at, datetime):
-                activity_datetime = activity.created_at
-            else:
-                # Si es date, convertirlo a datetime al inicio del día
-                activity_datetime = datetime.combine(activity.created_at, datetime.min.time())
-
-            # Manejar zona horaria
-            if activity_datetime.tzinfo is None:
-                activity_utc = activity_datetime.replace(tzinfo=timezone.utc)
-            else:
-                activity_utc = activity_datetime
-
-            bogota_time = activity_utc.astimezone(bogota_tz)
-            data["created_at"] = bogota_time.date().isoformat()
-
-        # Insertar en la tabla daily_activity
         response = supabase.table("body_dimensions").insert(data).execute()
 
         if response.data:

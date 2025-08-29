@@ -322,7 +322,8 @@ async def create_nutritional_plan(plan: NutricionalPlan, user_id: str = Depends(
             "daily_proteine": plan.daily_proteine,
             "daily_carbohydrates": plan.daily_carbohydrates,
             "daily_fiber": plan.daily_fiber,
-            "status": plan.status
+            "status": plan.status,
+            "user_uuid": user_id
         }
         
         # Si el nuevo plan es activo, desactivar todos los planes activos existentes

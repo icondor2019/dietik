@@ -279,60 +279,93 @@
               timeZone: 'America/Bogota'
              });
         });
-        
-        const data = Object.values(weeklyData);
-        
+
+        const kcalData = Object.values(weeklyData).map(d => d.energia_kcal);
+        const proteinData = Object.values(weeklyData).map(d => d.proteina_gr);
+        const carbsData = Object.values(weeklyData).map(d => d.carbohidratos_gr);
+        const fatData = Object.values(weeklyData).map(d => d.grasas_gr);
+
         new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Calorías Diarias',
-                    data: data,
-                    borderColor: '#83c5beff',
-                    backgroundColor: '#edf6f9ff',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Consumo Calórico Última Semana'
-                    },
-                    datalabels: {
-                        align: 'top',
-                        anchor: 'end',
-                        offset: 5,
-                        color: '#495057',
-                        font: {
-                            weight: 'bold',
-                            size: 11
-                        },
-                        formatter: (value) => Math.round(value)
-                    }
-                },
-                scales: {
-                    y: {
-                        min: 500,
-                        title: {
-                            display: true,
-                            text: 'Calorías (kcal)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Fecha'
-                        }
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]  // Add the datalabels plugin
-        });
+          type: 'line',
+          data: {
+              labels: labels,
+              datasets: [
+                  { 
+                      label: 'Calorías (kcal)', 
+                      data: kcalData, 
+                      borderColor: '#d9534f', 
+                      yAxisID: 'y'  // kcal va en eje Y principal
+                  },
+                  { 
+                      label: 'Proteína (g)', 
+                      data: proteinData, 
+                      borderColor: '#83c5beff', 
+                      yAxisID: 'y1'  // eje secundario
+                  },
+                  { 
+                      label: 'Carbohidratos (g)', 
+                      data: carbsData, 
+                      borderColor: '#e29578ff', 
+                      yAxisID: 'y1' 
+                  },
+                  { 
+                      label: 'Grasas (g)', 
+                      data: fatData, 
+                      borderColor: '#006d77ff', 
+                      yAxisID: 'y1' 
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Consumo Calórico Última Semana'
+                  },
+                  datalabels: {
+                      align: 'top',
+                      anchor: 'end',
+                      offset: 5,
+                      color: '#495057',
+                      font: {
+                          weight: 'bold',
+                          size: 11
+                      },
+                      formatter: (value) => Math.round(value)
+                  }
+              },
+              scales: {
+                  y: {
+                      min: 500,
+                      title: {
+                          display: true,
+                          text: 'Calorías (kcal)'
+                      },
+                      position: 'left'
+                  },
+                  y1: {
+                      beginAtZero: true,
+                      title: {
+                          display: true,
+                          text: 'Macronutrientes (g)'
+                      },
+                      position: 'right',
+                      grid: {
+                          drawOnChartArea: false // evita que se mezclen las grillas
+                      }
+                  },
+                  x: {
+                      title: {
+                          display: true,
+                          text: 'Fecha'
+                      }
+                  }
+              }
+          },
+          plugins: [ChartDataLabels]
+      });
     }
 
     async function loadDashboard() {

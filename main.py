@@ -8,6 +8,7 @@ from loguru import logger
 import sys
 import os
 from datetime import datetime, timedelta, timezone
+import traceback
 
 # Importar configuración
 from configuration.settings import (
@@ -411,7 +412,7 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         meals_response = supabase.table("meals")\
             .select("created_at, energia_kcal, proteina_gr, carbohidratos_gr, fibra_gr, grasas_gr")\
             .eq("client_id", telegram_id)\
-            .gte("created_at", (datetime.now() - timedelta(weeks=1)).isoformat())\
+            .gte("created_at", (datetime.now() - timedelta(weeks=2)).isoformat())\
             .execute()
         logger.info(f"Meals response: {len(meals_response.data)} records found")
 
@@ -448,13 +449,23 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         for meal in meals_response.data:
             date = datetime.fromisoformat(meal["created_at"]).date()
             if date not in daily_totals:
-                daily_totals[date] = 0
-            daily_totals[date] += meal.get("energia_kcal", 0) or 0
+                daily_totals[date] = {
+                    "energia_kcal": 0,
+                    "proteina_gr": 0,
+                    "carbohidratos_gr": 0,
+                    "fibra_gr": 0,
+                    "grasas_gr": 0,
+                }
+            daily_totals[date]["energia_kcal"] += meal.get("energia_kcal", 0) or 0
+            daily_totals[date]["proteina_gr"] += meal.get("proteina_gr", 0) or 0
+            daily_totals[date]["carbohidratos_gr"] += meal.get("carbohidratos_gr", 0) or 0
+            daily_totals[date]["fibra_gr"] += meal.get("fibra_gr", 0) or 0
+            daily_totals[date]["grasas_gr"] += meal.get("grasas_gr", 0) or 0
 
         # Ordenar por fecha y obtener últimos 7 días
         sorted_dates = sorted(daily_totals.keys())
         last_7_days = sorted_dates[-7:] if len(sorted_dates) > 7 else sorted_dates
-        
+        last_15_days = sorted_dates[-15:] if len(sorted_dates) > 15 else sorted_dates
 
         # valores del plan
         dashboard_response.plan_kcal = plan_kcal
@@ -478,8 +489,8 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         
         dashboard_response.today_date = today  # Asumiendo que "today" es datetime
         dashboard_response.weekly_kcal = {
-            date.strftime("%Y-%m-%d"): round(daily_totals[date])
-            for date in last_7_days
+            date.strftime("%Y-%m-%d"): daily_totals[date]
+            for date in last_15_days
         }
 
         # logger.info(f"Dashboard response: {dashboard_response}")
@@ -487,6 +498,8 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         return dashboard_response.model_dump()
         
     except Exception as e:
+        traceback.print_exc()
+        logger.error(f"Error generating dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching plans: {str(e)}")
 
 if __name__ == "__main__":

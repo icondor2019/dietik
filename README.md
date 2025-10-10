@@ -2,6 +2,9 @@
 
 Aplicación web para el seguimiento de actividad física y nutricional.
 
+## System design
+![img alt](https://github.com/icondor2019/dietik/blob/main/dietik_app_system.jpg?raw=true)
+
 ## Configuración de Variables de Entorno
 
 ### 1. Crear archivo .env

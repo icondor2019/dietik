@@ -798,7 +798,10 @@
                             <td>${meal.proteina_gr?.toFixed(1) || '0'}g</td>
                             <td>${meal.carbohidratos_gr?.toFixed(1) || '0'}g</td>
                             <td>
-                                <button class="btn btn-danger btn-sm delete-button" onclick="showDeleteConfirmation('${meal.uuid}', '${meal.descripcion || 'registro'}')">
+                                <button class="btn btn-danger btn-sm delete-button" 
+                                        data-meal-id="${meal.uuid}" 
+                                        data-meal-desc="${(meal.descripcion || 'registro').replace(/"/g, '&quot;')}"
+                                        onclick="triggerDeleteModal(this)">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -814,6 +817,13 @@
                 console.error('Error:', error);
                 showAlert('Error al cargar los registros', 'danger');
             }
+        }
+
+        // Función para preparar y mostrar el modal de eliminación desde el botón
+        function triggerDeleteModal(btn) {
+            const id = btn.getAttribute('data-meal-id');
+            const desc = btn.getAttribute('data-meal-desc');
+            showDeleteConfirmation(id, desc);
         }
 
         // Función para mostrar el modal de confirmación

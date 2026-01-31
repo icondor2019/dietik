@@ -308,7 +308,7 @@ async def get_frequent_meals(user_id: str = Depends(verify_token)):
 
 @app.delete("/api/meals/delete/{meal_id}")
 async def delete_meal(meal_id: str, user_id: str = Depends(verify_token)):
-    logger.info(f"Deleting meal {meal_id} for user {user_id}")
+    logger.warning(f"Deleting meal {meal_id} for user {user_id}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List, Optional
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -28,8 +29,9 @@ from configuration.settings import (
 
 # Importar módulos locales
 from backend.auth import create_access_token, verify_token, authenticate_user, register_user, get_current_user
-from backend.models import UserLogin, Token, UserRegister, BodyDimensions, NutricionalPlan
+from backend.models import UserLogin, Token, UserRegister, BodyDimensions, NutricionalPlan, MealModel
 from backend.responses.dashboard_response import DashboardResponse
+from backend.utils.embeddings import get_embedding
 # from database import db
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
@@ -255,9 +257,58 @@ async def get_meals(user_id: str = Depends(verify_token)):
         logger.error(f"Error general en get_meals: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error in get_meals: {str(e)}")
 
+@app.get("/api/products/search")
+async def search_products(q: str, user_id: str = Depends(verify_token)):
+    try:
+        from supabase import create_client, Client
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        
+        # Generar embedding del texto de búsqueda
+        query_embedding = get_embedding(q)
+        if not query_embedding:
+            raise HTTPException(status_code=500, detail="Error generating embedding")
+            
+        # Buscar productos similares usando RPC match_products
+        # Asumiendo que existe una función RPC match_products o similar
+        # Si no existe, usamos ilike como fallback inicial o un error controlado
+        try:
+             response = supabase.rpc("match_products_by_user", {
+                "query_embedding": query_embedding,
+                "user_uuid_filter": user_id,
+                "match_count": 5
+            }).execute()
+        except Exception as rpc_error:
+             logger.warning(f"RPC match_products failed or not found: {rpc_error}. Falling back to ilike.")
+             response = supabase.table("products")\
+                .select("*")\
+                .ilike("nombre", f"%{q}%")\
+                .limit(5)\
+                .execute()
+
+        return {"data": response.data}
+
+    except Exception as e:
+        logger.error(f"Error in search_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error searching products: {str(e)}")
+
+@app.get("/api/meals/frequent")
+async def get_frequent_meals(user_id: str = Depends(verify_token)):
+    try:
+        from supabase import create_client, Client
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        
+        # Usar RPC get_frequent_products
+        response = supabase.rpc("get_frequent_products", {"p_user_uuid": user_id}).execute()
+        
+        return {"data": response.data}
+
+    except Exception as e:
+        logger.error(f"Error in get_frequent_meals: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting frequent meals: {str(e)}")
+
 @app.delete("/api/meals/delete/{meal_id}")
 async def delete_meal(meal_id: str, user_id: str = Depends(verify_token)):
-    logger.info(f"Deleting meal {meal_id} for user {user_id}")
+    logger.warning(f"Deleting meal {meal_id} for user {user_id}")
     try:
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -501,6 +552,49 @@ async def get_nutritional_activity(user_id: str = Depends(verify_token)):
         traceback.print_exc()
         logger.error(f"Error generating dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching plans: {str(e)}")
+
+@app.post("/api/meals/create")
+async def create_meal(meal: MealModel, user_id: str = Depends(verify_token)):
+    logger.info(f"Creating meal for user {user_id}")
+    try:
+        from supabase import create_client, Client
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        
+        plan_response = supabase.table("plans")\
+            .select("uuid", "client_id")\
+            .eq("user_uuid", user_id)\
+            .eq("status", "active")\
+            .execute()
+
+        if not plan_response.data:
+            raise HTTPException(status_code=404, detail="Client not found in clients table")
+
+        telegram_id = plan_response.data[0]["client_id"]
+
+        # Preparar datos para insertar basado en modelo mealModel
+        data = {
+            "client_id": telegram_id,
+            "energia_kcal": meal.energia_kcal,
+            "proteina_gr": meal.proteina_gr,
+            "carbohidratos_gr": meal.carbohidratos_gr,
+            "fibra_gr": meal.fibra_gr,
+            "grasas_gr": meal.grasas_gr,
+            "user_uuid": user_id,
+            "descripcion": meal.descripcion,
+            "peso_total_gr": int(meal.peso_total_gr),
+            "product_ids": meal.product_ids,
+            "plan_uuid": plan_response.data[0]["uuid"]
+        }
+        logger.info(f"Data: {data}")
+        # Insertar datos en la tabla meals
+        insert_response = supabase.table("meals")\
+            .insert(data)\
+            .execute()
+
+        return {"data": insert_response.data}
+    except Exception as e:
+        logger.error(f"Error creating meal: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating meal: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

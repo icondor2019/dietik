@@ -36,6 +36,9 @@ API_BASE_URL = os.getenv("API_BASE_URL", "")  # Valor vacío por defecto para fo
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_FILE = os.getenv("LOG_FILE", "app.log")
 
+# OPENAI
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 # Validación de configuración requerida
 def validate_config():
     """Validar que las variables de entorno requeridas estén configuradas"""

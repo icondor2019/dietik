@@ -42,3 +42,17 @@ class NutricionalPlan(BaseModel):
     daily_carbohydrates: int = Field(default=0, description="Carbohidratos diarias (integer)")
     daily_fiber: int = Field(default=0, description="Fibra diaria (integer)")
     status: PlanStatus = Field(default=PlanStatus.ACTIVE, description="Estado del plan (active, inactive)")
+
+class MealModel(BaseModel):
+    client_id: Optional[int] = Field(None, description="ID de telegram (bigint)")
+    created_at: Optional[datetime] = Field(default_factory=datetime.now, description="Fecha de creación")
+    descripcion: str = Field(..., description="Descripción de la comida")
+    peso_total_gr: float = Field(..., description="Peso total en gramos")
+    energia_kcal: float = Field(..., description="Energía total en kcal")
+    proteina_gr: float = Field(..., description="Proteína total en gramos")
+    grasas_gr: float = Field(..., description="Grasas totales en gramos")
+    carbohidratos_gr: float = Field(..., description="Carbohidratos totales en gramos")
+    fibra_gr: float = Field(..., description="Fibra total en gramos")
+    plan_uuid: Optional[str] = Field(None, description="UUID del plan nutricional")
+    product_ids: List[int] = Field(default=[], description="Lista de IDs de productos")
+    user_uuid: Optional[str] = Field(..., description="UUID del usuario")  

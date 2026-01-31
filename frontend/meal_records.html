@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
             --primary-orange: #e29578ff;
             --primary-blue: #006d77ff;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-blue);
             border: none;
@@ -19,14 +20,15 @@
             padding: 12px 30px;
             transition: all 0.3s ease;
         }
-        
+
         .btn-primary:hover {
             background-color: #157d92;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(24, 143, 167, 0.3);
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 0.2rem rgba(24, 143, 167, 0.25);
         }
@@ -121,13 +123,15 @@
         }
 
         main {
-            margin-left: 16.666667%; /* col-md-2 width */
+            margin-left: 16.666667%;
+            /* col-md-2 width */
         }
 
         @media (max-width: 768px) {
             main {
                 margin-left: 0;
             }
+
             .sidebar {
                 position: static;
                 height: auto;
@@ -139,53 +143,188 @@
             padding-top: 20px;
             padding-bottom: 20px;
         }
+
+
+        /* Autocomplete Styles */
+        .list-group-item-action {
+            cursor: pointer;
+        }
+
+        .list-group-item-action:hover {
+            background-color: #f8f9fa;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 16px;
+            background-color: #f1f1f1;
+            margin: 2px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .chip:hover {
+            background-color: #ddd;
+        }
+
+        .chip.active {
+            background-color: var(--primary-blue);
+            color: white;
+        }
     </style>
 </head>
+
 <body class="bg-light">
     <!-- Barra superior con botón hamburguesa -->
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid">
-        <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
-            <i class="fas fa-bars"></i>
-        </button>
-        <a class="navbar-brand fw-bold ms-2" href="#">🍎 Dietik App</a>
+            <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral"
+                aria-controls="menuLateral">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand fw-bold ms-2" href="#">🍎 Dietik App</a>
         </div>
     </nav>
 
     <!-- Menú lateral (offcanvas) -->
-    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="menuLateral"
+        aria-labelledby="menuLateralLabel">
         <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="menuLateralLabel">🍎 Dietik App</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+            <h5 class="offcanvas-title" id="menuLateralLabel">🍎 Dietik App</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body">
-        <ul class="nav flex-column">
-            <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/static/welcome.html"><i class="fas fa-home me-2"></i>Inicio</a>
-            </li>
-            <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/static/body_dimensions.html"><i class="fas fa-dumbbell me-2"></i>Medidas Corporales</a>
-            </li>
-            <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/static/nutritional_plans.html"><i class="fas fa-utensils me-2"></i>Planes Nutricionales</a>
-            </li>
-            <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/static/meal_records.html"><i class="fas fa-list-alt me-2"></i>Control de Registros</a>
-            </li>
-            <li class="nav-item mt-3">
-            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
-            </li>
-        </ul>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white" href="/static/welcome.html"><i
+                            class="fas fa-home me-2"></i>Inicio</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white" href="/static/body_dimensions.html"><i
+                            class="fas fa-dumbbell me-2"></i>Medidas Corporales</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white" href="/static/nutritional_plans.html"><i
+                            class="fas fa-utensils me-2"></i>Planes Nutricionales</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white" href="/static/meal_records.html"><i
+                            class="fas fa-list-alt me-2"></i>Control de Registros</a>
+                </li>
+                <li class="nav-item mt-3">
+                    <a class="nav-link text-danger" href="#" onclick="logout()"><i
+                            class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                </li>
+            </ul>
         </div>
     </div>
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Control de Registros</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group me-2">
                     <span class="badge bg-primary" id="userInfo">Usuario</span>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Control de Registros</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group me-2">
+                    <span class="badge bg-primary" id="userInfo">Usuario</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Meal Section -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h5 class="card-title fw-bold text-primary"><i class="fas fa-plus-circle me-2"></i>Registrar Nueva
+                    Comida</h5>
+            </div>
+            <div class="card-body">
+
+                <!-- Recommendations -->
+                <div class="mb-3">
+                    <label class="form-label small text-muted text-uppercase fw-bold">Frecuentes:</label>
+                    <div id="recommendationsContainer" class="d-flex flex-wrap gap-2">
+                        <span class="text-muted small">Cargando sugerencias...</span>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="mb-3 position-relative">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="productSearch"
+                            placeholder="Buscar alimento (ej. Pollo, Arroz)..." autocomplete="off">
+                    </div>
+                    <div id="searchResults"
+                        class="list-group position-absolute w-100 shadow mt-1 rounded-3 overflow-hidden"
+                        style="z-index: 1000; display: none;"></div>
+                </div>
+
+                <!-- Selected Product Details & Portion -->
+                <div id="selectedProductArea" class="d-none border p-3 rounded bg-light mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong id="selectedProductName" class="h6 mb-0 text-dark">Nombre Producto</strong>
+                            <div class="small text-muted" id="selectedProductKcal">0 kcal/1g</div>
+                        </div>
+                        <button type="button" class="btn-close" onclick="clearSelection()" aria-label="Close"></button>
+                    </div>
+
+                    <div class="row align-items-end g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label small">Porción (gramos)</label>
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" type="button" onclick="adjustPortion(-10)"><i
+                                        class="fas fa-minus"></i></button>
+                                <input type="number" class="form-control text-center" id="portionInput" value="100"
+                                    min="1" onchange="updatePreview()">
+                                <button class="btn btn-outline-secondary" type="button" onclick="adjustPortion(10)"><i
+                                        class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between mb-2 small fw-bold">
+                                <span>Total: <span id="previewKcal" class="text-primary">0</span> kcal</span>
+                                <span><span id="previewProt" class="text-success">0</span>g Prot</span>
+                            </div>
+                            <button class="btn btn-primary w-100 rounded-pill" onclick="addToCart()">
+                                Agregar a la Comida
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart / Current Meal -->
+                <div id="currentMealCart" class="d-none mt-4">
+                    <h6 class="border-bottom pb-2 mb-3 text-secondary">Comida Actual</h6>
+                    <ul class="list-group mb-3 border-0" id="cartItems">
+                    </ul>
+                    <div
+                        class="d-flex justify-content-between align-items-center bg-primary bg-opacity-10 p-3 rounded mb-3">
+                        <strong class="text-primary">Total Comida:</strong>
+                        <span class="h5 mb-0"><span id="cartTotalKcal">0</span> kcal</span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mealDescription" class="form-label">Descripción (Opcional)</label>
+                        <input type="text" class="form-control" id="mealDescription"
+                            placeholder="Ej: Almuerzo completo">
+                    </div>
+                    <button class="btn btn-success w-100 py-2 rounded-pill fw-bold" onclick="submitMeal()">
+                        <i class="fas fa-check me-2"></i>Registrar Comida Completa
+                    </button>
                 </div>
             </div>
         </div>
@@ -244,12 +383,17 @@
         let deleteModal;
         let mealToDelete = null;
 
+        // Meal Recording Variables
+        let currentProduct = null;
+        let currentCart = [];
+        let searchTimeout;
+
         // Función para construir URLs de la API
         function getApiUrl(endpoint) {
             if (!configLoaded) {
                 throw new Error('La configuración no se ha cargada completamente');
             }
-            
+
             if (!API_BASE_URL) {
                 throw new Error('No se ha configurado la URL base de la API');
             }
@@ -263,7 +407,7 @@
                 if (!endpoint.startsWith('/')) {
                     endpoint = '/' + endpoint;
                 }
-                
+
                 // Simplemente unir la base con el endpoint
                 return `${API_BASE_URL}${endpoint}`;
             } catch (error) {
@@ -279,7 +423,7 @@
                 if (!response.ok) {
                     throw new Error('No se pudo cargar la configuración');
                 }
-                
+
                 const config = await response.json();
                 if (!config.api_base_url) {
                     throw new Error('La configuración no incluye api_base_url');
@@ -310,6 +454,282 @@
             window.location.href = '/static/login.html';
         }
 
+        // ==========================================
+        // Meal Recording Functions
+        // ==========================================
+
+        async function loadRecommendations() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                console.log('Loading recommendations...');
+                const response = await fetch(getApiUrl('/api/meals/frequent'), {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Recommendations data:', data);
+                    const container = document.getElementById('recommendationsContainer');
+                    container.innerHTML = '';
+
+                    if (data.data && data.data.length > 0) {
+                        data.data.forEach(product => {
+                            const chip = document.createElement('span');
+                            chip.className = 'chip';
+                            chip.textContent = product.nombre;
+                            chip.onclick = () => selectProduct(product);
+                            container.appendChild(chip);
+                        });
+                    } else {
+                        container.innerHTML = '<span class="text-muted small">No hay sugerencias aún.</span>';
+                    }
+                } else {
+                    console.error('Failed to load recommendations:', response.status, response.statusText);
+                    const container = document.getElementById('recommendationsContainer');
+                    container.innerHTML = '<span class="text-danger small">Error cargando sugerencias.</span>';
+                }
+            } catch (error) {
+                console.error("Error loading recommendations", error);
+                const container = document.getElementById('recommendationsContainer');
+                if (container) container.innerHTML = '<span class="text-danger small">Error de conexión.</span>';
+            }
+        }
+
+        // Search Logic
+        document.getElementById('productSearch').addEventListener('input', function (e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            if (query.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const authToken = localStorage.getItem('authToken');
+                    const response = await fetch(getApiUrl(`/api/products/search?q=${encodeURIComponent(query)}`), {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderSearchResults(data.data);
+                    }
+                } catch (error) {
+                    console.error("Search error", error);
+                }
+            }, 1000); // 500ms debounce
+        });
+
+        function renderSearchResults(products) {
+            const container = document.getElementById('searchResults');
+            container.innerHTML = '';
+
+            if (!products || products.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            products.forEach(product => {
+                const item = document.createElement('a');
+                item.className = 'list-group-item list-group-item-action border-0 border-bottom';
+                item.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <strong class="mb-1">${product.nombre}</strong>
+                        <small class="text-muted">${(product.calorias || 0)} kcal/1g</small>
+                    </div>
+                `;
+                item.onclick = () => {
+                    selectProduct(product);
+                    container.style.display = 'none';
+                    document.getElementById('productSearch').value = '';
+                };
+                container.appendChild(item);
+            });
+            container.style.display = 'block';
+        }
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('productSearch').contains(e.target)) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
+
+        function selectProduct(product) {
+            currentProduct = product;
+            document.getElementById('selectedProductArea').classList.remove('d-none');
+            document.getElementById('selectedProductName').textContent = product.nombre;
+            // Assuming database values are PER 1 gram based on user comment
+            document.getElementById('selectedProductKcal').textContent = `${(product.calorias || 0)} kcal por 1g`;
+
+            // Default 100g
+            document.getElementById('portionInput').value = 100;
+            updatePreview();
+        }
+
+        function clearSelection() {
+            currentProduct = null;
+            document.getElementById('selectedProductArea').classList.add('d-none');
+        }
+
+        function adjustPortion(delta) {
+            const input = document.getElementById('portionInput');
+            let val = parseInt(input.value) || 0;
+            val = Math.max(1, val + delta);
+            input.value = val;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            if (!currentProduct) return;
+            const grams = parseInt(document.getElementById('portionInput').value) || 0;
+
+            // MATH: User says DB values are PER 1 GRAM
+            const kcal = (currentProduct.calorias || 0) * grams;
+            const prot = (currentProduct.proteina || 0) * grams;
+
+            document.getElementById('previewKcal').textContent = kcal.toFixed(1);
+            document.getElementById('previewProt').textContent = prot.toFixed(1);
+        }
+
+        function addToCart() {
+            if (!currentProduct) return;
+            const grams = parseInt(document.getElementById('portionInput').value) || 0;
+            if (grams <= 0) return;
+
+            // Calculate totals for this item
+            const item = {
+                product: currentProduct,
+                weight: grams,
+                kcal: (currentProduct.calorias || 0) * grams,
+                prot: (currentProduct.proteina || 0) * grams,
+                carbs: (currentProduct.carbohidratos || 0) * grams,
+                fat: (currentProduct.grasas || 0) * grams, // Assuming 'grasas' column exists
+                fiber: (currentProduct.fibra || 0) * grams  // Assuming 'fibra' col exists
+            };
+
+            currentCart.push(item);
+            renderCart();
+            clearSelection();
+
+            // Show cart if hidden
+            document.getElementById('currentMealCart').classList.remove('d-none');
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartItems');
+            list.innerHTML = '';
+
+            let totalKcal = 0;
+
+            currentCart.forEach((item, index) => {
+                totalKcal += item.kcal;
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center bg-transparent';
+                li.innerHTML = `
+                    <div>
+                        <div>${item.product.nombre}</div>
+                        <small class="text-muted">${item.weight}g - ${item.kcal.toFixed(1)} kcal</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="removeFromCart(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                list.appendChild(li);
+            });
+
+            document.getElementById('cartTotalKcal').textContent = totalKcal.toFixed(1);
+
+            if (currentCart.length === 0) {
+                document.getElementById('currentMealCart').classList.add('d-none');
+            }
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            renderCart();
+        }
+
+        async function submitMeal() {
+            if (currentCart.length === 0) return;
+
+            const descInput = document.getElementById('mealDescription');
+            const userDesc = descInput.value.trim();
+
+            // Aggregate Cart Data
+            let totalWeight = 0;
+            let totalKcal = 0;
+            let totalProt = 0;
+            let totalCarbs = 0;
+            let totalFat = 0;
+            let totalFiber = 0;
+            const productIds = [];
+            const productNames = [];
+
+            currentCart.forEach(item => {
+                totalWeight += item.weight;
+                totalKcal += item.kcal;
+                totalProt += item.prot;
+                totalCarbs += item.carbs;
+                totalFat += item.fat || 0;
+                totalFiber += item.fiber || 0;
+                productIds.push(item.product.id);
+                productNames.push(`${item.product.nombre} (${item.weight}g)`);
+            });
+
+            // Default description if empty
+            const description = userDesc || productNames.join(', ');
+
+            // Construct Payload (Single object for MealModel)
+            const payload = {
+                client_id: 0, // Backend will overwrite this with correct telegram_id
+                created_at: new Date().toISOString(),
+                descripcion: description,
+                peso_total_gr: totalWeight,
+                energia_kcal: totalKcal,
+                proteina_gr: totalProt,
+                grasas_gr: totalFat,
+                carbohidratos_gr: totalCarbs,
+                fibra_gr: totalFiber,
+                plan_uuid: "00000000-0000-0000-0000-000000000000", // Backend will overwrite with active plan
+                product_ids: productIds,
+                // user_uuid is typically handled by token in backend, but model has it
+                user_uuid: "00000000-0000-0000-0000-000000000000"
+            };
+            // print el payload
+            console.log(payload);
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(getApiUrl('/api/meals/create'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showAlert('Comida registrada exitosamente!', 'success');
+                    // Clear cart
+                    currentCart = [];
+                    descInput.value = '';
+                    renderCart();
+
+                    // Reload meals
+                    setTimeout(loadMeals, 500);
+                } else {
+                    const err = await response.json();
+                    showAlert(`Error: ${err.detail || 'No se pudo registrar'}`, 'danger');
+                }
+            } catch (error) {
+                console.error("Submit error", error);
+                showAlert('Error de conexión', 'danger');
+            }
+        }
+
         // Función para cargar las comidas
         async function loadMeals() {
             try {
@@ -322,7 +742,7 @@
 
                 const url = getApiUrl('/api/meals');
                 console.log('Cargando comidas desde:', url);
-                
+
                 const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -386,12 +806,12 @@
                     // Agregar animación de fade out
                     const row = document.querySelector(`tr[data-meal-id="${mealId}"]`);
                     row.classList.add('fade-out');
-                    
+
                     // Esperar a que termine la animación antes de recargar
                     setTimeout(() => {
                         loadMeals();
                     }, 300);
-                    
+
                     showAlert('Registro eliminado exitosamente', 'success');
                 } else {
                     showAlert('Error al eliminar el registro', 'danger');
@@ -406,7 +826,7 @@
         function showAlert(message, type) {
             const alertContainer = document.getElementById('alertContainer');
             const alertId = 'alert-' + Date.now();
-            
+
             alertContainer.innerHTML = `
                 <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
                     ${message}
@@ -423,12 +843,12 @@
         }
 
         // Inicialización
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             // Inicializar el modal
             deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            
+
             // Configurar el botón de confirmación
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
                 if (mealToDelete) {
                     deleteMeal(mealToDelete);
                     deleteModal.hide();
@@ -437,7 +857,7 @@
             });
 
             await loadConfig();
-            
+
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 window.location.href = '/static/login.html';
@@ -446,17 +866,18 @@
             }
 
             try {
-                const response = await fetch(getApiUrl('/user/profile'), {
+                const response = await fetch(getApiUrl('/api/user/profile'), {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
-                
+
                 if (response.ok) {
                     const userData = await response.json();
                     document.getElementById('userInfo').textContent = userData.user_id;
 
-                    // Cargar las comidas después de verificar el usuario
+                    // Load Recommendations and Meals
+                    loadRecommendations();
                     await loadMeals();
 
                 } else {
@@ -469,4 +890,5 @@
         });
     </script>
 </body>
+
 </html>

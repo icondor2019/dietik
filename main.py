@@ -560,7 +560,7 @@ async def create_meal(meal: MealModel, user_id: str = Depends(verify_token)):
         from supabase import create_client, Client
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         
-        plan_response = supabase.table("nutricional_plan")\
+        plan_response = supabase.table("plans")\
             .select("uuid", "client_id")\
             .eq("user_uuid", user_id)\
             .eq("status", "active")\
@@ -574,7 +574,6 @@ async def create_meal(meal: MealModel, user_id: str = Depends(verify_token)):
         # Preparar datos para insertar basado en modelo mealModel
         data = {
             "client_id": telegram_id,
-            "created_at": meal.created_at,
             "energia_kcal": meal.energia_kcal,
             "proteina_gr": meal.proteina_gr,
             "carbohidratos_gr": meal.carbohidratos_gr,
@@ -582,11 +581,11 @@ async def create_meal(meal: MealModel, user_id: str = Depends(verify_token)):
             "grasas_gr": meal.grasas_gr,
             "user_uuid": user_id,
             "descripcion": meal.descripcion,
-            "peso_total_gr": meal.peso_total_gr,
+            "peso_total_gr": int(meal.peso_total_gr),
             "product_ids": meal.product_ids,
             "plan_uuid": plan_response.data[0]["uuid"]
         }
-
+        logger.info(f"Data: {data}")
         # Insertar datos en la tabla meals
         insert_response = supabase.table("meals")\
             .insert(data)\

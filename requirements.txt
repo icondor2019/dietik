@@ -12,3 +12,7 @@ requests==2.32.3
 loguru
 openai>=1.0.0
 numpy>=1.24.0
+
+# Testing
+pytest>=8.0.0
+httpx>=0.27.0

@@ -145,3 +145,30 @@ Verifica que:
 1. Las credenciales de Supabase sean correctas
 2. La URL y la clave anónima estén bien configuradas
 3. El proyecto de Supabase esté activo
+
+## Testing
+
+### Dependencias
+
+Las dependencias de testing (`pytest`, `httpx`) ya están incluidas en `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Ejecutar los tests
+
+Desde la raíz del proyecto:
+
+```bash
+# Ejecutar todos los tests
+python -m pytest tests/ -v
+
+# Ejecutar solo los tests de endpoints
+python -m pytest tests/test_endpoints.py -v
+```
+
+### Qué se testea
+
+- **Endpoints públicos**: verifica que `/api/health`, `/api`, `/api/test` y `/api/config` responden correctamente
+- **Endpoints protegidos**: verifica que los endpoints que requieren autenticación rechazan peticiones sin token (401/403)

@@ -135,7 +135,8 @@ async def create_meal(meal: MealModel, user_id: str = Depends(verify_token)):
             "descripcion": meal.descripcion,
             "peso_total_gr": int(meal.peso_total_gr),
             "product_ids": meal.product_ids,
-            "plan_uuid": plan_response.data[0]["uuid"]
+            "plan_uuid": plan_response.data[0]["uuid"],
+            "created_at": meal.created_at.isoformat() if meal.created_at else None
         }
         logger.info(f"Data: {data}")
         # Insertar datos en la tabla meals

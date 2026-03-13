@@ -158,7 +158,8 @@
             display: inline-block;
             padding: 5px 10px;
             border-radius: 16px;
-            background-color: #f1f1f1;
+            background-color: var(--primary-orange);
+            color: white;
             margin: 2px;
             cursor: pointer;
             transition: background 0.2s;
@@ -172,6 +173,36 @@
         .chip.active {
             background-color: var(--primary-blue);
             color: white;
+        }
+
+        /* Recommendations Grid Styles */
+        #recommendationsContainer {
+            display: grid !important;
+            grid-template-rows: repeat(2, 1fr);
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Custom Scrollbar for Recommendations */
+        #recommendationsContainer::-webkit-scrollbar {
+            height: 6px;
+        }
+        #recommendationsContainer::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        #recommendationsContainer::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        #recommendationsContainer::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
@@ -244,13 +275,19 @@
             </div>
             <div class="card-body">
 
+                <!-- Date Selection Area -->
+                <div class="mb-4 bg-light rounded border p-3">
+                    <label for="created_at" class="form-label small text-muted text-uppercase fw-bold"><i class="fas fa-calendar-alt me-1"></i> Fecha de la Comida</label>
+                    <input type="date" class="form-control" id="created_at" name="created_at">
+                </div>
+
                 <!-- Product Selection Area (Search & Recs) -->
                 <div class="p-3 mb-4 bg-light rounded border">
                     <!-- Recommendations -->
                     <div class="mb-3">
                         <label class="form-label small text-muted text-uppercase fw-bold"><i
                                 class="fas fa-magic me-1"></i> Frecuentes:</label>
-                        <div id="recommendationsContainer" class="d-flex flex-wrap gap-2">
+                        <div id="recommendationsContainer" class="gap-2">
                             <span class="text-muted small">Cargando sugerencias...</span>
                         </div>
                     </div>
@@ -475,6 +512,14 @@
         // Meal Recording Functions
         // ==========================================
 
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha por defecto (hoy)
+            const options = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+            const formatter = new Intl.DateTimeFormat("sv-SE", options); // sv-SE da formato YYYY-MM-DD
+            const today = formatter.format(new Date());
+            document.getElementById('created_at').value = today;
+        });
+
         async function loadRecommendations() {
             try {
                 const authToken = localStorage.getItem('authToken');
@@ -536,7 +581,7 @@
                 } catch (error) {
                     console.error("Search error", error);
                 }
-            }, 1000); // 500ms debounce
+            }, 300); // 300ms debounce
         });
 
         function renderSearchResults(products) {
@@ -715,10 +760,30 @@
             // Default description
             const description = productNames.join(', ');
 
+            // Get selected date or fallback to current
+            const dateInput = document.getElementById('created_at');
+            
+            // Build the current time within Bogota
+            const timeOptions = { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+            const timeFormatter = new Intl.DateTimeFormat("sv-SE", timeOptions);
+            const currentTimeStr = timeFormatter.format(new Date());
+
+            let createdAt;
+            if (dateInput && dateInput.value) {
+                // Combine date input with current Bogota time and standard UTC-5 offset
+                createdAt = `${dateInput.value}T${currentTimeStr}-05:00`;
+            } else {
+                // If it fails, fallback to exactly now in Bogota with standard UTC-5 offset
+                const dateOptions = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+                const dateFormatter = new Intl.DateTimeFormat("sv-SE", dateOptions);
+                const dateStr = dateFormatter.format(new Date());
+                createdAt = `${dateStr}T${currentTimeStr}-05:00`;
+            }
+
             // Construct Payload (Single object for MealModel)
             const payload = {
                 client_id: 0, // Backend will overwrite this with correct telegram_id
-                created_at: new Date().toISOString(),
+                created_at: createdAt,
                 descripcion: description,
                 peso_total_gr: totalWeight,
                 energia_kcal: totalKcal,

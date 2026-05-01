@@ -45,3 +45,4 @@ config.py
 
 # Exclude local files
 local*
+*.json
